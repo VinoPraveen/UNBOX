@@ -5,7 +5,7 @@ import InteractiveDemo from '../../components/InteractiveDemo/InteractiveDemo.js
 import HowItWorks from '../../components/HowItWorks/HowItWorks.jsx';
 import ExploreConcepts from '../../components/ExploreConcepts/ExploreConcepts.jsx';
 import './Home.css';
-
+// this is vetri
 const SUGGESTED_TOPICS = ['Arrays', 'Recursion', 'HTTP', 'Binary Search'];
 
 const containerVariants = {
@@ -96,7 +96,6 @@ export default function Home() {
           </motion.div>
         </section>
       </div>
-
       <HowItWorks />
 
       <ExploreConcepts />
