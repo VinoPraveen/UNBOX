@@ -1,0 +1,60 @@
+:root {
+  /* Brand colors — futuristic dark theme */
+  --color-navy: #f8fafc; /* primary text / headings (light) */
+  --color-navy-dark: #cbd5e1; /* lighter emphasis text / hover */
+  --color-gold: #a3ff12; /* highlight accent (lime) — small highlights */
+  --color-bg: #080b14; /* page background */
+  --color-white: #111827; /* card / surface */
+  --color-surface: #0d111c; /* secondary background */
+  --color-text: #f8fafc; /* main text */
+  --color-muted: #94a3b8; /* secondary text */
+  --color-border: #1e293b; /* border */
+
+  /* Futuristic accents */
+  --color-accent: #7c3aed; /* primary accent (violet) */
+  --color-cyan: #22d3ee; /* secondary accent (cyan) */
+  --color-highlight: #a3ff12; /* highlight (lime) */
+
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.5rem;
+  --text-5xl: 3rem;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Layout */
+  --container-max: 1160px;
+  --navbar-height: 68px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-accent: 0 6px 20px rgba(124, 58, 237, 0.35);
+  --shadow-highlight: 0 6px 20px rgba(163, 255, 18, 0.18);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+}

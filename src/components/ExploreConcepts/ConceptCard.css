@@ -1,0 +1,72 @@
+.concept-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.concept-card:hover {
+  border-color: #334155;
+  box-shadow: var(--shadow-md);
+}
+
+.concept-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  margin-bottom: var(--space-1);
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.concept-card:hover .concept-card__icon {
+  background-color: var(--card-tint);
+  border-color: var(--card-accent);
+}
+
+.concept-card__title {
+  font-size: var(--text-xl);
+  color: var(--color-navy);
+}
+
+.concept-card__badge {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 3px 12px;
+  line-height: 1.4;
+}
+
+.concept-card__description {
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--color-muted);
+  flex-grow: 1;
+}
+
+.concept-card__arrow {
+  display: inline-flex;
+  color: var(--color-muted);
+  margin-top: var(--space-2);
+}
+
+.concept-card:hover .concept-card__arrow {
+  color: var(--card-accent);
+}

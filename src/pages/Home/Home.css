@@ -1,0 +1,166 @@
+.home {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-10) 0 var(--space-12);
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 780px;
+  height: 520px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(124, 58, 237, 0.12),
+    rgba(34, 211, 238, 0.05) 45%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero__content,
+.hero__visual {
+  position: relative;
+  z-index: 1;
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.hero__label {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-navy);
+  width: fit-content;
+  padding: 4px 0;
+  border-bottom: 2px solid var(--color-gold);
+}
+
+.hero__heading {
+  font-size: var(--text-5xl);
+  color: var(--color-navy);
+  letter-spacing: -0.02em;
+}
+
+.hero__subtitle {
+  font-size: var(--text-lg);
+  line-height: 1.7;
+  color: var(--color-muted);
+  max-width: 34rem;
+}
+
+.hero__search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search__icon {
+  position: absolute;
+  left: var(--space-4);
+  color: var(--color-muted);
+  transition: color var(--transition-fast);
+}
+
+.search:focus-within .search__icon {
+  color: var(--color-navy);
+}
+
+.search__input {
+  width: 100%;
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background-color: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-4) var(--space-4) 3rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search__input::placeholder {
+  color: var(--color-muted);
+}
+
+.search__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.18);
+}
+
+.try {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.try__label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.try__tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.try__tag {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-navy);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 14px;
+  transition: all var(--transition-fast);
+}
+
+.try__tag:hover {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  background-color: rgba(34, 211, 238, 0.08);
+}
+
+.try__tag:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-color: var(--color-accent);
+}
+
+.hero__actions {
+  margin-top: var(--space-2);
+}
+
+.hero__cta {
+  font-size: var(--text-base);
+  padding: var(--space-3) var(--space-8);
+}
