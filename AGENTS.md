@@ -123,6 +123,10 @@ Implemented:
 - ExploreConcepts section (below HowItWorks) — "Explore Concepts" + 4 concept cards
   (Arrays · Binary Search · HTTP · Operating Systems), surface bg, viewport reveal + stagger,
   View All Concepts outline button
+- InteractiveShowcase section (between HowItWorks and ExploreConcepts) — "Don't just
+  read it. Watch it happen." + interactive Binary Search demo (array [10..70], target 60,
+  LOW/MID/HIGH pointers, Previous / Next Step / Reset controls, dynamic step narration,
+  Time O(log n) / Space O(1)), lazy-right explanation panel
 
 Out of scope (later phases):
 - Explore page, About page, concept pages, quiz system, admin dashboard,
@@ -131,6 +135,32 @@ Out of scope (later phases):
 ---
 
 ## Session Log
+
+### 2026-08-28 — Interactive Showcase (verified)
+- **Existing section** `components/InteractiveShowcase/` confirmed complete & working
+  (already wired into `Home.jsx` between HowItWorks and ExploreConcepts; no changes
+  made this session — only verified).
+- **Structure**:
+  - `InteractiveShowcase.jsx` — centered header (label "INTERACTIVE LEARNING" via
+    CSS `text-transform: uppercase`), heading "Don't just read it. Watch it
+    happen.", subtitle; explanation panel + lazy-right layout (desktop two-column,
+    stacked ≤1024).
+  - `BinarySearchVisualizer.jsx` — array `[10..70]`, target 60, LOW/MID/HIGH
+    pointers (cyan / violet / lime-found), eliminated-cell dim/fade, found-state
+    check badge, Previous / Next Step / Reset controls, subtle "Step x / 3"
+    progress pill, role/aria-live + labels for accessibility.
+  - `binarySearchSteps.js` — algorithm data/state separate from presentation;
+    builds 3 steps (compare MID 40 vs 60 → discard lower half → found 60) with
+    per-index `eliminated` masks + `narrationFor()` step copy.
+- **Narration/progress states**: STEP 00 initial → "We check the middle element."
+  (step 01) → "We discard the half." (step 02) → "Found 60". Complexity shown
+  secondarily: Time O(log n), Space O(1).
+- **Design**: existing dark tokens — violet=active interaction, cyan=info,
+  lime=found state. Framer Motion on cell reveal, mid highlight, dim/elim,
+  narratio text swap (`AnimatePresence mode="wait"`).
+- **Verified**: `npm run lint` ✓, `npm run build` ✓, dev boots (Vite ready ~312ms,
+  no errors), algorithm traced (3 steps, correct elim/found), all strings present
+  in production bundle. Navbar/Hero/HowItWorks/ExploreConcepts untouched.
 
 ### 2026-08-28 — Added "Explore Concepts" + design refinement pass
 - **New section** `components/ExploreConcepts/` below HowItWorks:
