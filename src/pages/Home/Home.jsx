@@ -4,6 +4,7 @@ import { Search, ArrowRight } from 'lucide-react';
 import InteractiveDemo from '../../components/InteractiveDemo/InteractiveDemo.jsx';
 import HowItWorks from '../../components/HowItWorks/HowItWorks.jsx';
 import InteractiveShowcase from '../../components/InteractiveShowcase/InteractiveShowcase.jsx';
+import LearningPreview from '../../components/LearningPreview/LearningPreview.jsx';
 import ExploreConcepts from '../../components/ExploreConcepts/ExploreConcepts.jsx';
 import './Home.css';
 // this is vetri
@@ -100,6 +101,8 @@ export default function Home() {
       <HowItWorks />
 
       <InteractiveShowcase />
+
+      <LearningPreview />
 
       <ExploreConcepts />
     </main>

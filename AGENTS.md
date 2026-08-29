@@ -77,6 +77,11 @@ src/
 │   ├── Logo/            Logo.jsx + Logo.css  (logo image + "UNBOX" wordmark)
 │   ├── InteractiveDemo/ Stack visualization (InteractiveDemo.jsx + .css)
 │   ├── HowItWorks/      "How UNBOX Works" steps (HowItWorks.jsx + .css)
+│   ├── InteractiveShowcase/ Binary Search viz (InteractiveShowcase.jsx/.css,
+│   │                       BinarySearchVisualizer.jsx/.css, binarySearchSteps.js)
+│   ├── ConceptBook/     Reusable 3D book/card (ConceptBook.jsx + .css) — used in
+│   │                    InteractiveShowcase (compact) + LearningPreview (large)
+│   ├── LearningPreview/ Section 5 (LearningPreview.jsx/.css, LearningJourney.jsx/.css)
 │   └── ExploreConcepts/ concept cards (ExploreConcepts.jsx + .css, ConceptCard.jsx + .css)
 ├── pages/
 │   └── Home/            Home.jsx + Home.css (hero section)
@@ -123,10 +128,20 @@ Implemented:
 - ExploreConcepts section (below HowItWorks) — "Explore Concepts" + 4 concept cards
   (Arrays · Binary Search · HTTP · Operating Systems), surface bg, viewport reveal + stagger,
   View All Concepts outline button
-- InteractiveShowcase section (between HowItWorks and ExploreConcepts) — "Don't just
+- InteractiveShowcase section (between HowItWorks and LearningPreview) — "Don't just
   read it. Watch it happen." + interactive Binary Search demo (array [10..70], target 60,
   LOW/MID/HIGH pointers, Previous / Next Step / Reset controls, dynamic step narration,
-  Time O(log n) / Space O(1)), lazy-right explanation panel
+  Time O(log n) / Space O(1)), right column = explanation panel + compact ConceptBook
+- LearningPreview section (between InteractiveShowcase and ExploreConcepts) — "The UNBOX
+  Experience" / "Open a concept. Understand what's inside." + large ConceptBook (Binary
+  Search, DATA STRUCTURES cover, "open to understand" reveal w/ mini array + Target 60 +
+  Start Learning) next to a 5-step LearningJourney (01 What is it? … 05 Test your knowledge)
+- **ConceptBook** (reusable): a futuristic "concept container" 3D card/book whose *cover only*
+  opens from the left edge (CSS `perspective`/`preserve-3d`/`transform-origin: left center`/
+  `rotateY`). Cover = real `<button>` (aria-expanded) → works on hover (desktop), click/tap,
+  and keyboard (Enter/Space). `variant="compact"` (Section 4) vs `variant="large"` (Section 5),
+  driven by `cover` + `content` props (label/title/hint; eyebrow/title/description/meta/cta).
+  `prefers-reduced-motion` fades instead of rotating.
 
 Out of scope (later phases):
 - Explore page, About page, concept pages, quiz system, admin dashboard,
@@ -260,3 +275,34 @@ Out of scope (later phases):
   surfaces. Accents applied selectively.
 - Verified: `npm run lint` ✓, `npm run build` ✓, dev boots ✓, all CSS + modules
   served 200, old light-theme colors absent from bundle, no new deps.
+
+### 2026-08-29 — Section 4 book card + Section 5 Learning Preview
+- **New reusable `components/ConceptBook/`** (ConceptBook.jsx + .css): futuristic
+  "concept container" card/book whose *cover only* opens from the left edge. CSS 3D:
+  wrapper `perspective:1400px`, stage `transform-style:preserve-3d`, cover
+  `transform-origin:left center` + `rotateY(-13deg)` over 0.6s cubic-bezier. Cover is a
+  real `<button>` (aria-expanded/aria-controls/aria-label) → opens on hover (desktop),
+  toggles on click/tap + keyboard (Enter/Space). `variant="compact"` / `"large"` via
+  `cover` + `content` props (label/title/hint; eyebrow/title/description/meta/cta/children).
+  `prefers-reduced-motion` fades instead of rotating. Plain per-component CSS, existing
+  tokens only (no styled-components).
+- **Section 4**: added compact ConceptBook to `InteractiveShowcase` right column
+  (`.showcase__side` flex column below the existing explanation panel) — cover
+  `UNBOX / Binary Search / Hover to reveal`, reveal Algorithm eyebrow + title +
+  "Search smarter by repeatedly dividing the search space." + `Complexity · O(log n)`
+  meta + `Explore` CTA pill. The Binary Search viz stays primary.
+- **Section 5 (new) `components/LearningPreview/`**: `LearningPreview.jsx/.css` +
+  `LearningJourney.jsx/.css`. Label `THE UNBOX EXPERIENCE`, heading "Open a concept.
+  Understand what's inside.", two-column: left large ConceptBook (cover
+  `DATA STRUCTURES / BINARY SEARCH / Open to understand`; reveal eyebrow `Binary Search`
+  + `What is it?` title + description + mini array `[10..70]` w/ lime 60 + `Target: 60`
+  + `Start Learning` CTA), right 5-step LearningJourney (01..05, gold numbers, cyan
+  label, Framer Motion `whileInView` stagger + hover lift). Responsive 2-col → 1-col ≤1024.
+- **Home.jsx**: added `<LearningPreview />` between `<InteractiveShowcase />` and
+  `<ExploreConcepts />`. Navbar/Hero/HowItWorks untouched.
+- **Verified** via puppeteer-core (headless Chrome): no horizontal overflow at 1440…320;
+  compact + large books render; keyboard Enter opens/closes ConceptBook; click/tap
+  toggles both variants (mobile viewport too); aria-expanded reflects state; Binary
+  Search Prev/Next/Reset traced (40 compare → narrow 50·60·70 → Found 60@5, over-run
+  clamps, Reset restores); no console errors. `npm run lint` (Oxlint) ✓, `npm run build` ✓,
+  dev serves all new modules 200. No new deps in project.

@@ -68,6 +68,18 @@
   align-items: start;
 }
 
+.showcase__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.showcase__side .book {
+  max-width: 360px;
+  margin: 0;
+}
+
 .showcase__panel {
   display: flex;
   flex-direction: column;
