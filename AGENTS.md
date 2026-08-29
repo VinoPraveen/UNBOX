@@ -82,14 +82,16 @@ src/
 │   │                       binarySearchSteps.js)
 │   ├── LearningMethods/   "Learn it your way." learning-method cards
 │   │                      (LearningMethods.jsx/.css, LearningMethodCard.jsx/.css)
-│   └── ExploreConcepts/ concept cards (ExploreConcepts.jsx + .css, ConceptCard.jsx + .css)
+│   ├── ExploreConcepts/ concept cards (ExploreConcepts.jsx + .css, ConceptCard.jsx + .css)
+│   ├── FinalCTA/        "Ready to Unbox?" closing section (FinalCTA.jsx + .css)
+│   └── Footer/          minimal footer (Footer.jsx + .css)
 ├── pages/
 │   └── Home/            Home.jsx + Home.css (hero section)
 ├── styles/
 │   ├── variables.css    design tokens
 │   ├── global.css       reset + base + shared (.btn, focus)
 │   └── responsive.css   breakpoint overrides
-├── App.jsx              renders <Navbar/> + <Home/>
+├── App.jsx              renders <Navbar/> + <Home/> + <FinalCTA/> + <Footer/>
 └── main.jsx             root + style imports
 ```
 
@@ -142,6 +144,17 @@ Implemented:
 - **No book/card-open interaction**: the earlier ConceptBook / LearningPreview / LearningJourney
   concept is fully removed (folders deleted, grep clean across `src`). All interactions are
   standard Framer button click / hover states.
+- FinalCTA section ("Ready to Unbox?") — label `Ready to Unbox?`, heading "There's more to
+  every concept.", supporting text, "Start Exploring →" purple `.btn-gold` button + note;
+  minimal CSS/SVG unbox visual (outlined box + glowing lime opening beam), restrained
+  violet/cyan glow; Framer Motion `whileInView` staged reveal (heading → text → button →
+  visual); button use variant-label cascade so the arrow slides right on hover.
+- Footer (`<footer>`) — brand (small logo square + "UNBOX" + tagline "See what's inside."),
+  two link columns Explore (Concepts / How It Works / About — real hash links) and Connect
+  (GitHub / LinkedIn — Lucide `GitBranch`/`ExternalLink`, `href="#"` placeholders), thin top
+  border, bottom bar with © 2026 UNBOX + slogan; semantic `nav`/`aria-label`, link hover → cyan.
+  (Note: this lucide-react version has **no `Github`/`Linkedin` brand icons** — used `GitBranch`
+  and `ExternalLink`.)
 
 Out of scope (later phases):
 - Explore page, About page, concept pages, quiz system, admin dashboard,
@@ -379,3 +392,46 @@ Out of scope (later phases):
   `(...?.disabled) === true`). Don't spread a helper that returns a node and compare to
   strings (`=== 'yes'`) after changing it to return booleans. PowerShell `Get-Content`/`Set-Content`
   UTF-8 round-trips mangle `—` / `Δ` in temp scripts (use the edit tool).
+
+### 2026-08-29 — Added Final CTA (Section 6) + Footer (Section 7)
+- **`components/FinalCTA/`** (`FinalCTA.jsx/.css`): full-width closing section (sibling of the
+  other wrapped sections in `App.jsx`, placed after `<Home/>`, `border-top` separates from
+  ExploreConcepts). Label `Ready to Unbox?` (uppercase cyan), heading "There's more to every
+  concept.", supporting text, "Start Exploring →" purple `.btn-gold`, note "No complicated
+  setup. Just pick a concept and start learning." Restrained CSS/SVG unbox visual: outlined
+  box (`.cta__box`, violet border + inner cyan ring) with a lime glowing opening beam
+  (`.cta__beam` gradient + soft glow). Subtle violet/cyan radial glow (`.cta__glow`).
+  Framer `whileInView` staged reveal (`.cta__inner` container stagger → label/heading/text/
+  action then box scale + beam scaleX delayed) — no continuous animation.
+- **Button hover cascade** (important lesson): the `Start Exploring` anchor is a `motion.a`
+  with `variants={buttonVariants}` (hidden/show reveal + `hover:{y:-2}`) + `whileHover="hover"`;
+  the arrow is a child `motion.span` with `arrowVariants` (hidden/show + `hover:{x:4}`).
+  A child variant only fires on hover when the **parent uses variant-labels** (`whileHover="hover"`),
+  NOT a plain-object `whileHover={{...}}` — so the arrow slides right via the cascade.
+  Reveal variants had to be included on BOTH the button and arrow, otherwise adding
+  `variants={buttonVariants}` shadows the inherited `.cta__action` itemVariants and the
+  button would not fade in on scroll.
+- **`components/Footer/`** (`Footer.jsx/.css`): semantic `<footer>` with `border-top`.
+  Brand block (small violet logo square + "UNBOX" wordmark + tagline), two `nav aria-label`
+  columns — **Explore** (Concepts `#concepts` / How It Works `#how-it-works` / About `#about`
+  real hash links) and **Connect** (GitHub / LinkedIn, `href="#"` placeholders with Lucide
+  icons). Bottom bar: © 2026 UNBOX + "See what's inside." Link hover → cyan (`color`
+  transition only). **No brand icons in this lucide version** — used `GitBranch` (GitHub)
+  and `ExternalLink` (LinkedIn) (same as the earlier Navbar session note).
+- **App.jsx**: now `<> <Navbar/> <Home/> <FinalCTA/> <Footer/> </>`. FinalCTA lives after
+  `<main>` (full-width, matches other separated sections); Footer outside main. Navbar /
+  Home / HowItWorks / InteractiveShowcase / LearningMethods / ExploreConcepts untouched.
+- **Responsive**: CTA centered column, max-width 42rem, button full-width ≤768. Footer:
+  desktop brand left / link groups right; ≤768 column-stacked (brand → Explore → Connect)
+  with bottom bar stacked-left.
+- **NO new deps.** `npm run lint` ✓, `npm run build` ✓ (2239 modules; `index-DH7xWIvG.js`
+  346.25 kB, `index-DSYBAA4x.css` 30.51 kB).
+- **Verified via headless Edge CDP (`verify-cta-footer.mjs` in temp) — 46/46 PASS**: CTA copy
+  + visual + glow, bg #080B14, button purple, box/heading/beam reveal after in-view scroll,
+  button lift `matrix(…,0,-2)` + arrow `matrix(…,4,0)` on hover; footer semantic `footer` +
+  2 `nav`, brand/tagline, Explore & Connect columns + correct links + icons, copyright +
+  slogan, link color transition; section order showcase→methods→explore→cta→footer with
+  footer outside main; no horizontal overflow at 1440/1024/768/390/320; footer desktop
+  side-by-side + mobile stacked; all prior-section regressions intact (navbar 3 links, hero,
+  hiw, 4 concept cards, 3 method cards, 3 stack controls); no console errors.
+
