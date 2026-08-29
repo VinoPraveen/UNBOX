@@ -1,0 +1,76 @@
+.methods-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  padding: var(--space-8) var(--space-6) var(--space-8);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.methods-card:hover {
+  border-color: color-mix(in srgb, var(--card-accent) 42%, var(--color-border));
+  box-shadow: 0 0 0 1px var(--card-accent), var(--shadow-md);
+}
+
+.methods-card__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--card-accent);
+  opacity: 0.45;
+  transform: scaleX(0.35);
+  transform-origin: center;
+  transition:
+    opacity var(--transition-base),
+    transform var(--transition-base);
+}
+
+.methods-card:hover .methods-card__bar,
+.methods-card:focus-within .methods-card__bar {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.methods-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: color-mix(in srgb, var(--card-accent) 10%, var(--color-white));
+  border: 1px solid color-mix(in srgb, var(--card-accent) 38%, var(--color-border));
+  color: var(--card-accent);
+  transition:
+    background-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.methods-card:hover .methods-card__icon {
+  background-color: color-mix(in srgb, var(--card-accent) 16%, var(--color-white));
+  box-shadow: 0 0 0 1px var(--card-accent);
+}
+
+.methods-card__title {
+  margin-top: var(--space-1);
+  font-size: var(--text-lg);
+  color: var(--color-navy);
+}
+
+.methods-card__desc {
+  font-size: var(--text-base);
+  line-height: 1.65;
+  color: var(--color-muted);
+  max-width: 19rem;
+}

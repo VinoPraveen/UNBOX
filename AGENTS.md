@@ -77,11 +77,11 @@ src/
 │   ├── Logo/            Logo.jsx + Logo.css  (logo image + "UNBOX" wordmark)
 │   ├── InteractiveDemo/ Stack visualization (InteractiveDemo.jsx + .css)
 │   ├── HowItWorks/      "How UNBOX Works" steps (HowItWorks.jsx + .css)
-│   ├── InteractiveShowcase/ Binary Search viz (InteractiveShowcase.jsx/.css,
-│   │                       BinarySearchVisualizer.jsx/.css, binarySearchSteps.js)
-│   ├── ConceptBook/     Reusable 3D book/card (ConceptBook.jsx + .css) — used in
-│   │                    InteractiveShowcase (compact) + LearningPreview (large)
-│   ├── LearningPreview/ Section 5 (LearningPreview.jsx/.css, LearningJourney.jsx/.css)
+│   ├── InteractiveShowcase/ "Concept in Motion" Binary Search viz
+│   │                       (InteractiveShowcase.jsx/.css, BinarySearchVisualizer.jsx/.css,
+│   │                       binarySearchSteps.js)
+│   ├── LearningMethods/   "Learn it your way." learning-method cards
+│   │                      (LearningMethods.jsx/.css, LearningMethodCard.jsx/.css)
 │   └── ExploreConcepts/ concept cards (ExploreConcepts.jsx + .css, ConceptCard.jsx + .css)
 ├── pages/
 │   └── Home/            Home.jsx + Home.css (hero section)
@@ -128,20 +128,20 @@ Implemented:
 - ExploreConcepts section (below HowItWorks) — "Explore Concepts" + 4 concept cards
   (Arrays · Binary Search · HTTP · Operating Systems), surface bg, viewport reveal + stagger,
   View All Concepts outline button
-- InteractiveShowcase section (between HowItWorks and LearningPreview) — "Don't just
-  read it. Watch it happen." + interactive Binary Search demo (array [10..70], target 60,
-  LOW/MID/HIGH pointers, Previous / Next Step / Reset controls, dynamic step narration,
-  Time O(log n) / Space O(1)), right column = explanation panel + compact ConceptBook
-- LearningPreview section (between InteractiveShowcase and ExploreConcepts) — "The UNBOX
-  Experience" / "Open a concept. Understand what's inside." + large ConceptBook (Binary
-  Search, DATA STRUCTURES cover, "open to understand" reveal w/ mini array + Target 60 +
-  Start Learning) next to a 5-step LearningJourney (01 What is it? … 05 Test your knowledge)
-- **ConceptBook** (reusable): a futuristic "concept container" 3D card/book whose *cover only*
-  opens from the left edge (CSS `perspective`/`preserve-3d`/`transform-origin: left center`/
-  `rotateY`). Cover = real `<button>` (aria-expanded) → works on hover (desktop), click/tap,
-  and keyboard (Enter/Space). `variant="compact"` (Section 4) vs `variant="large"` (Section 5),
-  driven by `cover` + `content` props (label/title/hint; eyebrow/title/description/meta/cta).
-  `prefers-reduced-motion` fades instead of rotating.
+- InteractiveShowcase section — "Concept in Motion" (label `Interactive Visualization`,
+  heading "See a concept unfold step by step.") — interactive **4-step Binary Search** demo
+  (array [10..70], target 60, START / CHECK / NARROW / FOUND steps, LOW/MID/HIGH pointers,
+  Previous / Next Step / Reset controls, "STEP n / 4" progress pill + 4 dots, dynamic step
+  narration), Time O(log n) / Space O(1); right column = explanation panel (step badge →
+  step heading → detail, found chip on step 4)
+- LearningMethods section — "The UNBOX Experience" / "Learn it your way." / "One concept.
+  Multiple ways to understand it." — 3 learning-method cards (Visualize `Eye` / Experiment
+  `FlaskConical` / Test `CircleCheck`), per-card accent via inline `--card-accent` (violet /
+  cyan / lime), Framer hover lift (`y:-6`) + icon scale (variant-label cascade from card
+  hover), subtle accent bar; connector line `.methods__line` desktop-only (hidden ≤1024)
+- **No book/card-open interaction**: the earlier ConceptBook / LearningPreview / LearningJourney
+  concept is fully removed (folders deleted, grep clean across `src`). All interactions are
+  standard Framer button click / hover states.
 
 Out of scope (later phases):
 - Explore page, About page, concept pages, quiz system, admin dashboard,
@@ -330,3 +330,52 @@ Out of scope (later phases):
     errors** during the whole session; `npm run lint` ✓, `npm run build` ✓.
 - **Test-harness note**: CDP Enter must be `Input.dispatchKeyEvent type:'keyDown'` with `text:'\r'`
   + `keyUp` to synthesize a button click (`rawKeyDown` alone doesn't).
+
+### 2026-08-29 (3rd) — Removed book/open interaction; Section 4 "Concept in Motion" + Section 5 "Learn it your way."
+- **Decision reversal**: the CSS 3D cover-open ConceptBook / LearningPreview / LearningJourney
+  concept (previous two sessions) is **fully removed** — `src/components/ConceptBook/` and
+  `src/components/LearningPreview/` folders deleted; grep confirms no
+  `ConceptBook|LearningPreview|LearningJourney|book__` references remain in `src`. The earlier
+  2026-08-29 log entries about the book are superseded by this one.
+- **Section 4 rewired** (`InteractiveShowcase/`): header now label `Interactive Visualization`,
+  heading "See a concept unfold step by step." + sub "Interact with the process and understand
+  what's happening underneath." `binarySearchSteps.js` rebuilt as 4 snapshot STEPS
+  (KEY/START/CHECK/NARROW/FOUND) over ARRAY [10,20,30,40,50,60,70], TARGET 60
+  (page `.bsearch__step` state, not array index). Per snapshot: low/high/mid/eliminated/found/
+  status/badge/heading/detail + `narrationFor(step)`. STEP 1 START (no MID, LOW/HIGH at bounds),
+  STEP 2 CHECK (MID = 40 @ idx 3, "We check the middle element."), STEP 3 NARROW (idx 0–3
+  eliminated/dimmed, range 50·60·70, MID → 60 @ idx 5), STEP 4 FOUND (60 lime @ idx 5, check
+  badge, "60 found." + found chip). Controls: Previous disabled on STEP 1, Next disabled on
+  STEP 4, Reset always restores; progress pill `STEP n / 4`; `role/aria-live` narration.
+  Right column = pure explanation panel (Current `Step n / 4` badge → heading → detail,
+  Time O(log n) / Space O(1)) — ConceptBook and `.showcase__side` gone.
+- **Section 5 (new) `components/LearningMethods/`**: `LearningMethods.jsx/.css` +
+  `LearningMethodCard.jsx/.css`. Label `THE UNBOX EXPERIENCE`, heading "Learn it your way.",
+  sub "One concept. Multiple ways to understand it." Data-driven 3 cards — Visualize
+  (`Eye`, violet `#7C3AED`), Experiment (`FlaskConical`, cyan `#22D3EE`), Test
+  (`CircleCheck`, lime `#A3FF12`) — accent injected inline as `--card-accent`
+  (`color-mix` tints + hover border/glow). `LearningMethodCard` uses Framer **variant-label
+  cascade** (matches ConceptCard pattern): `motion.li whileHover="hover"` lifts `y:-6`
+  (spring 400/30), the nested `motion.div.icon` defines `hidden/show/hover` variants and
+  scales to `1.08` via the *card's* hover label (not its own `whileHover` — a bare child
+  `whileHover` does not fire unless the pointer is exactly on the 52px circle). Accent
+  bar `.methods-card__bar` scales in. Connector `.methods__line` desktop-only (grid 3 col
+  → 2 col ≤1100 → 1 col ≤800; line hidden <1100).
+- **Home.jsx**: section order now `InteractiveShowcase → LearningMethods → ExploreConcepts`.
+  Navbar / Hero / HowItWorks / ExploreConcepts / InteractiveDemo untouched.
+- **NO new deps.** `npm run lint` ✓ (dropped an unused `mask` helper in binarySearchSteps.js
+  and an unused `step` param in `InteractiveShowcase`'s panel — kept `gather`), `npm run build` ✓
+  (2235 modules; `dist/assets/index-DTTPcpFu.js` 342.57 kB, `index-BtpEiRnN.css` 26.81 kB).
+- **Verified via headless Edge CDP (`verify3.mjs` in temp) — 86/86 PASS**: dev boots clean,
+  all new copy present, 4-step engine traced (START → CHECK 40 → NARROW 50·60·70/dim 0.3 →
+  FOUND 60@5 lime + check badge; Previous/Next disabled states at START & FOUND + restored by
+  Reset; progress pill + 4 dots; complexity O(log n)/O(1)), no `.book`/`.preview` remnants,
+  3 method cards with correct titles/copy/accents/icons, hover lift `matrix(1,0,0,1,0,-6)` +
+  icon `matrix(1.08,0,0,1.08,0,0)`, no horizontal overflow at 1440/1024/768/390/320, grid
+  cols 3/2/1 + connector hidden <1100, section order + all prior-section regressions intact,
+  no console errors.
+- **Test-harness lessons**: evaluating a DOM node with `returnByValue` throws CDP
+  "Object reference chain is too long" → evaluate a boolean expression instead (e.g.
+  `(...?.disabled) === true`). Don't spread a helper that returns a node and compare to
+  strings (`=== 'yes'`) after changing it to return booleans. PowerShell `Get-Content`/`Set-Content`
+  UTF-8 round-trips mangle `—` / `Δ` in temp scripts (use the edit tool).
