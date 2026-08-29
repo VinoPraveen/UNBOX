@@ -181,15 +181,18 @@
   border-radius: var(--radius-lg) 0 0 var(--radius-lg);
 }
 
-/* Open states */
-.book:hover .book__cover,
+/* Open state — driven by click/tap/keyboard (works on every device) */
 .book.is-open .book__cover {
   transform: rotateY(-13deg);
+  box-shadow: -18px 12px 36px rgba(0, 0, 0, 0.5);
 }
 
-.book:hover .book__cover,
-.book.is-open .book__cover {
-  box-shadow: -18px 12px 36px rgba(0, 0, 0, 0.5);
+/* Hover-open only on devices that actually hover, so click/tap can always toggle */
+@media (hover: hover) and (pointer: fine) {
+  .book:hover .book__cover {
+    transform: rotateY(-13deg);
+    box-shadow: -18px 12px 36px rgba(0, 0, 0, 0.5);
+  }
 }
 
 @media (max-width: 768px) {
@@ -207,14 +210,23 @@
     transition: opacity 0.15s ease;
   }
 
-  .book:hover .book__cover,
   .book.is-open .book__cover {
     transform: none;
     opacity: 0;
   }
 
-  .book:hover .book__content,
   .book.is-open .book__content {
     z-index: 1;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .book:hover .book__cover {
+      transform: none;
+      opacity: 0;
+    }
+
+    .book:hover .book__content {
+      z-index: 1;
+    }
   }
 }

@@ -306,3 +306,27 @@ Out of scope (later phases):
   Search Prev/Next/Reset traced (40 compare → narrow 50·60·70 → Found 60@5, over-run
   clamps, Reset restores); no console errors. `npm run lint` (Oxlint) ✓, `npm run build` ✓,
   dev serves all new modules 200. No new deps in project.
+
+### 2026-08-29 (2nd) — Section 4 & 5 verification + ConceptBook interaction refinement
+- **ConceptBook interaction fix** (`ConceptBook.css` only): hover-open is now gated behind
+  `@media (hover: hover) and (pointer: fine)`; `.book.is-open .book__cover` opens on every device,
+  so click/tap/keyboard toggling is consistent on touch (no more iOS-style sticky `:hover`
+  keeping the cover open after tapping close). Desktop keeps hover-open per spec; the
+  `prefers-reduced-motion` block mirrors the same gating (fade instead of rotate).
+- **Full verification pass** via headless Edge (CDP, `verify2.mjs` in temp) — **74/74 checks**:
+  - Binary Search engine: Step 0 → 01 (MID 40, "We check the middle element." panel) → 02 (eliminates
+    0–3, narrows to 50·60·70, MID→60) → 03 (Found 60, lime, check badge, Next disabled); Previous
+    restores, Reset restores all cells + controls re-disabled; Time O(log n) / Space O(1) shown.
+  - ConceptBook: closed initially; opens on desktop hover (matrix3d rotateY), closes on mouse-leave;
+    click toggles `aria-expanded` + transform and persists after pointer leaves; hover+click keeps
+    open; keyboard Enter opens/closes; reduced-motion fades (cover opacity ≈ 0, content readable);
+    CSS gate rule present; compact + large reveal copy verified (Section 4 Explore · O(log n);
+    Section 5 What is it? + mini array + Target 60 + Start Learning).
+  - Touch emulation (390px): tap opens/closes both books; no horizontal overflow at
+    1440 / 1024 / 768 / 390 / 320 (scrollWidth ≤ innerWidth).
+  - Regressions: Navbar 3 links, Hero heading, HowItWorks, ExploreConcepts 4 cards, Stack demo
+    3 controls, section order showcase → preview → explore — all intact.
+  - Dev server boots clean (Vite ~300-470ms, main.jsx transforms, no dev-log errors); **no console
+    errors** during the whole session; `npm run lint` ✓, `npm run build` ✓.
+- **Test-harness note**: CDP Enter must be `Input.dispatchKeyEvent type:'keyDown'` with `text:'\r'`
+  + `keyUp` to synthesize a button click (`rawKeyDown` alone doesn't).
