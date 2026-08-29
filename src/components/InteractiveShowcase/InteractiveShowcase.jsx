@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check } from 'lucide-react';
 import BinarySearchVisualizer from './BinarySearchVisualizer.jsx';
+import ConceptBook from '../ConceptBook/ConceptBook.jsx';
 import { STEPS, TARGET, narrationFor } from './binarySearchSteps.js';
 import './InteractiveShowcase.css';
 
@@ -108,7 +109,27 @@ export default function InteractiveShowcase() {
             onPrev={handlePrev}
             onReset={handleReset}
           />
-          <ExplanationPanel narration={narration} />
+
+          <div className="showcase__side">
+            <ExplanationPanel narration={narration} />
+            <ConceptBook
+              variant="compact"
+              cover={{
+                id: 'bs-compact',
+                label: 'UNBOX',
+                title: 'Binary Search',
+                hint: 'Hover to reveal',
+              }}
+              content={{
+                eyebrow: 'Algorithm',
+                title: 'Binary Search',
+                description:
+                  'Search smarter by repeatedly dividing the search space.',
+                meta: 'Complexity · O(log n)',
+                cta: 'Explore',
+              }}
+            />
+          </div>
         </motion.div>
       </div>
     </section>
