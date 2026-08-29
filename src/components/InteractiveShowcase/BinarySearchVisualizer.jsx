@@ -8,7 +8,7 @@ const spring = { type: 'spring', stiffness: 320, damping: 28 };
 
 const arrayVariants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.04 } },
+  show: { transition: { staggerChildren: 0.05 } },
 };
 
 const cellVariants = {
@@ -25,7 +25,6 @@ export default function BinarySearchVisualizer({
   step,
   total,
   snapshot,
-  status,
   onNext,
   onPrev,
   onReset,
@@ -33,20 +32,34 @@ export default function BinarySearchVisualizer({
   const pointerLow = snapshot ? snapshot.low : 0;
   const pointerHigh = snapshot ? snapshot.high : ARRAY.length - 1;
   const pointerMid = snapshot ? snapshot.mid : null;
-  const isFound = Boolean(snapshot?.found);
+  const found = Boolean(snapshot?.found);
 
   return (
     <section className="bsearch" aria-label="Binary search demonstration">
       <header className="bsearch__header">
         <div className="bsearch__title-wrap">
           <h3 className="bsearch__title">Binary Search</h3>
-          <p className="bsearch__sub">
-            Sorted array [10 … 70] · Target {TARGET}
-          </p>
+          <p className="bsearch__sub">Sorted array [10 … 70] · Target {TARGET}</p>
         </div>
-        <span className="bsearch__progress" aria-live="polite">
-          Step {step} / {total}
-        </span>
+        <div className="bsearch__progress-wrap">
+          <span className="bsearch__progress" aria-live="polite">
+            STEP {step} / {total}
+          </span>
+          <div className="bsearch__dots" role="img" aria-label={`Step ${step} of ${total}`}>
+            {Array.from({ length: total }, (_, index) => (
+              <span
+                key={index}
+                className={
+                  'bsearch__dot' +
+                  (index + 1 === step ? ' bsearch__dot--current' : '') +
+                  (index + 1 < step ? ' bsearch__dot--done' : '') +
+                  (found && index + 1 === step ? ' bsearch__dot--found' : '')
+                }
+                aria-hidden="true"
+              />
+            ))}
+          </div>
+        </div>
       </header>
 
       <div
@@ -63,7 +76,7 @@ export default function BinarySearchVisualizer({
                   transition={spring}
                   className={
                     'bsearch__pointer bsearch__pointer--mid' +
-                    (isFound ? ' bsearch__pointer--found' : '')
+                    (found ? ' bsearch__pointer--found' : '')
                   }
                 >
                   MID
@@ -104,7 +117,7 @@ export default function BinarySearchVisualizer({
           {ARRAY.map((value, index) => {
             const eliminated = Boolean(snapshot?.eliminated?.[index]);
             const isMid = pointerMid === index;
-            const foundCell = isFound && isMid;
+            const foundCell = found && isMid;
 
             return (
               <motion.li className="bsearch__array-item" key={index} variants={cellVariants}>
@@ -118,16 +131,22 @@ export default function BinarySearchVisualizer({
                   initial={false}
                   animate={
                     eliminated
-                      ? { opacity: 0.3, scale: 0.96 }
+                      ? { opacity: 0.3, scale: 0.94 }
                       : { opacity: 1, scale: 1 }
                   }
-                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
                 >
                   <span className="bsearch__cell-value">{value}</span>
                   {foundCell && (
-                    <span className="bsearch__cell-check" aria-hidden="true">
+                    <motion.span
+                      className="bsearch__cell-check"
+                      aria-hidden="true"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 340, damping: 22 }}
+                    >
                       <Check size={12} strokeWidth={3} />
-                    </span>
+                    </motion.span>
                   )}
                 </motion.div>
               </motion.li>
@@ -136,10 +155,10 @@ export default function BinarySearchVisualizer({
         </motion.ol>
 
         <p
-          className={'bsearch__status' + (isFound ? ' bsearch__status--found' : '')}
+          className={'bsearch__status' + (found ? ' bsearch__status--found' : '')}
           aria-live="polite"
         >
-          {status}
+          {snapshot ? snapshot.status : ''}
         </p>
       </div>
 
@@ -148,28 +167,33 @@ export default function BinarySearchVisualizer({
           type="button"
           className="btn btn-navy btn-control"
           onClick={onPrev}
-          disabled={step === 0}
-          aria-label="Show the previous step"
+          disabled={step === 1}
+          aria-label="Go to the previous step"
         >
           <ArrowLeft size={16} />
           Previous
         </button>
+
+        <span className="bsearch__step" aria-hidden="true">
+          Step {step} / {total}
+        </span>
+
         <button
           type="button"
           className="btn btn-gold btn-control"
           onClick={onNext}
           disabled={step === total}
-          aria-label="Advance to the next step"
+          aria-label="Go to the next step"
         >
           Next Step
           <ArrowRight size={16} />
         </button>
+
         <button
           type="button"
-          className="btn btn-ghost btn-control"
+          className="btn btn-ghost btn-control bsearch__reset"
           onClick={onReset}
-          disabled={step === 0}
-          aria-label="Reset the search to its initial state"
+          aria-label="Reset the search to step 1"
         >
           <RotateCcw size={16} />
           Reset

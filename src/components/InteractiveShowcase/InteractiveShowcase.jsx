@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check } from 'lucide-react';
 import BinarySearchVisualizer from './BinarySearchVisualizer.jsx';
-import ConceptBook from '../ConceptBook/ConceptBook.jsx';
 import { STEPS, TARGET, narrationFor } from './binarySearchSteps.js';
 import './InteractiveShowcase.css';
 
@@ -24,8 +23,11 @@ const bodyVariants = {
 
 function ExplanationPanel({ narration }) {
   return (
-    <aside className="showcase__panel" aria-label="Step explanation">
-      <p className="showcase__badge">{narration.badge}</p>
+    <aside className="showcase__panel" aria-label={`Step explanation. ${narration.badge}`}>
+      <div className="showcase__panel-head">
+        <span className="showcase__current">Current Step</span>
+        <span className="showcase__badge">{narration.badge}</span>
+      </div>
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -67,13 +69,13 @@ function ExplanationPanel({ narration }) {
 }
 
 export default function InteractiveShowcase() {
-  const [step, setStep] = useState(0);
-  const snapshot = step > 0 ? STEPS[step - 1] : null;
+  const [step, setStep] = useState(1);
+  const snapshot = STEPS[step - 1];
   const narration = narrationFor(step);
 
   const handleNext = () => setStep((current) => Math.min(current + 1, TOTAL));
-  const handlePrev = () => setStep((current) => Math.max(current - 1, 0));
-  const handleReset = () => setStep(0);
+  const handlePrev = () => setStep((current) => Math.max(current - 1, 1));
+  const handleReset = () => setStep(1);
 
   return (
     <section id="showcase" className="showcase">
@@ -85,11 +87,11 @@ export default function InteractiveShowcase() {
           viewport={{ once: true, amount: 0.5 }}
           variants={headerVariants}
         >
-          <p className="showcase__label">Interactive Learning</p>
+          <p className="showcase__label">Interactive Visualization</p>
           <h2 className="showcase__heading">Don't just read it. Watch it happen.</h2>
           <p className="showcase__subtitle">
-            See a concept come to life. Interact with it, change it, and
-            understand what is happening step by step.
+            See a concept unfold step by step. Interact with the process and
+            understand what's happening underneath.
           </p>
         </motion.header>
 
@@ -104,32 +106,12 @@ export default function InteractiveShowcase() {
             step={step}
             total={TOTAL}
             snapshot={snapshot}
-            status={narration.status}
             onNext={handleNext}
             onPrev={handlePrev}
             onReset={handleReset}
           />
 
-          <div className="showcase__side">
-            <ExplanationPanel narration={narration} />
-            <ConceptBook
-              variant="compact"
-              cover={{
-                id: 'bs-compact',
-                label: 'UNBOX',
-                title: 'Binary Search',
-                hint: 'Hover to reveal',
-              }}
-              content={{
-                eyebrow: 'Algorithm',
-                title: 'Binary Search',
-                description:
-                  'Search smarter by repeatedly dividing the search space.',
-                meta: 'Complexity · O(log n)',
-                cta: 'Explore',
-              }}
-            />
-          </div>
+          <ExplanationPanel narration={narration} />
         </motion.div>
       </div>
     </section>
