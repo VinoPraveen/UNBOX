@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import './FinalCTA.css';
 
@@ -72,26 +73,28 @@ export default function FinalCTA() {
           works.
         </motion.p>
 
-        <motion.div className="cta__action" variants={itemVariants}>
-          <motion.a
-            className="btn btn-gold cta__button"
-            href="#explore"
-            variants={buttonVariants}
-            whileHover="hover"
-            whileTap={{ scale: 0.98 }}
-          >
-            Start Exploring
-            <motion.span
-              className="cta__arrow"
-              variants={arrowVariants}
-            >
-              <ArrowRight size={18} aria-hidden="true" />
-            </motion.span>
-          </motion.a>
-          <p className="cta__note">
-            No complicated setup. Just pick a concept and start learning.
-          </p>
-        </motion.div>
+            <motion.div className="cta__action" variants={itemVariants}>
+              <motion.div
+                className="cta__button"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap={{ scale: 0.98 }}
+                style={{ display: 'inline-flex' }}
+              >
+                <Link to="/explore" className="btn btn-gold cta__button">
+                  Start Exploring
+                  <motion.span
+                    className="cta__arrow"
+                    variants={arrowVariants}
+                  >
+                    <ArrowRight size={18} aria-hidden="true" />
+                  </motion.span>
+                </Link>
+              </motion.div>
+              <p className="cta__note">
+                No complicated setup. Just pick a concept and start learning.
+              </p>
+            </motion.div>
       </motion.div>
     </section>
   );

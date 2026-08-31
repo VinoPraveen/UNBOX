@@ -1,8 +1,9 @@
+import { Link } from 'react-router-dom';
 import './Logo.css';
 
 export default function Logo() {
   return (
-    <a href="/" className="logo" aria-label="UNBOX home">
+    <Link to="/" className="logo" aria-label="UNBOX home">
       <img
         className="logo__img"
         src="/logo.png"
@@ -10,6 +11,6 @@ export default function Logo() {
         aria-hidden="true"
       />
       <span className="logo__name">UNBOX</span>
-    </a>
+    </Link>
   );
 }

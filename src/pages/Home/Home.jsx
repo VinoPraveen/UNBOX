@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, ArrowRight } from 'lucide-react';
 import InteractiveDemo from '../../components/InteractiveDemo/InteractiveDemo.jsx';
@@ -80,10 +81,10 @@ export default function Home() {
             </motion.div>
 
             <motion.div className="hero__actions" variants={itemVariants}>
-              <a href="#get-started" className="btn btn-gold hero__cta">
+              <Link to="/explore" className="btn btn-gold hero__cta">
                 Start Exploring
                 <ArrowRight size={18} />
-              </a>
+              </Link>
             </motion.div>
           </motion.div>
 

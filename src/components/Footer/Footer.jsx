@@ -1,10 +1,11 @@
+import { Link } from 'react-router-dom';
 import { GitBranch, ExternalLink } from 'lucide-react';
 import './Footer.css';
 
 const EXPLORE_LINKS = [
-  { label: 'Concepts', href: '#concepts' },
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'About', href: '#about' },
+  { label: 'Concepts', to: '/explore' },
+  { label: 'How It Works', href: '/#how-it-works' },
+  { label: 'About', href: '/#about' },
 ];
 
 const CONNECT_LINKS = [
@@ -30,9 +31,15 @@ export default function Footer() {
             <ul className="footer__list">
               {EXPLORE_LINKS.map((link) => (
                 <li key={link.label}>
-                  <a className="footer__link" href={link.href}>
-                    {link.label}
-                  </a>
+                  {link.to ? (
+                    <Link className="footer__link" to={link.to}>
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a className="footer__link" href={link.href}>
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

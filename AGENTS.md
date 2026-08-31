@@ -16,7 +16,51 @@ Tagline: **"See what's inside."**
 The platform explains concepts through interactive visualizations, animations,
 examples, playgrounds, and quizzes.
 
-- Current phase: **Phase 1** (landing page foundation only).
+- Current phase: **Phase 2.1** (Explore Concepts page — central concept library).
+
+## Routing (since 2026-08-31)
+
+- React Router v7 (BrowserRouter) is now installed and wired in `App.jsx`.
+- **`/`** — landing page (Home + FinalCTA). **`/explore`** — Explore page.
+  **`/explore/:conceptId`** — temporary ConceptPlaceholder (real pages = Phase 2.2).
+- `App.jsx` uses a `Layout` (Navbar + children + Footer); `Home`/`Explore`/
+  `ConceptPlaceholder` render between Navbar and Footer. `MotionConfig
+  reducedMotion="user"` wraps the router.
+- Navbar: `Explore` is a `NavLink` (active state `.is-active` via lime underline);
+  `How It Works`/`About` are plain anchors to `/#how-it-works`, `/#about`. Mobile
+  menu links are Router links; `Get Started` CTA → `/explore`. Logo is a Router
+  `Link` → `/`.
+- `Brand` CTAs now navigate: Home `Start Exploring`, ExploreConcepts
+  `View All Concepts`, FinalCTA `Start Exploring`, Footer `Concepts` → `/explore`;
+  Hero search/chips are UI-only.
+
+## Explore page (Phase 2.1)
+
+- `src/data/concepts.js` — static data source (12 concepts). Exports default
+  `concepts` array + `CATEGORIES` + `DIFFICULTIES`. Each concept: `id`, `title`,
+  `category`, `difficulty`, `description`, `Icon` (Lucide), plus per-category
+  `accent`/`tint` tokens. **Do not mutate** — filters derive a new array.
+- `src/pages/Explore/Explore.jsx` (+ `.css`) — hero (`EXPLORE UNBOX` label,
+  "What do you want to understand?" heading, description, search), FilterBar,
+  results count, grid, empty state. State via `useState`: `searchQuery`,
+  `selectedCategory`, `selectedDifficulty`; filtered via `useMemo` (case-insensitive
+  search on title/description/category + category + difficulty AND logic).
+- `src/components/ExploreSearch/` — controlled search input (lucide Search icon).
+- `src/components/FilterBar/` — Catalog + Difficulty radiogroup button groups;
+  active = `--color-accent-bright` + violet border/bg on `#{7C3AED}08` tint.
+- `src/components/ExploreConceptCard/` — reusable card (`motion.article` wrapper +
+  `<Link>`), icon/category badge/title/description/difficulty/`Explore →`; hover
+  lift (y:-6 via Framer variant label cascade), icon scale, arrow slide, border
+  brighten. Cards link to `/explore/:id`.
+- `src/pages/ConceptPlaceholder/` — temporary route page; shows concept icon/
+  category/title/description/difficulty + "Coming in Phase 2.2", back link, and a
+  "Concept not found" state for unknown ids.
+- Grid: 3 cols (≥1025) → 3 cols down to 1024 hover (desktop) → 2 cols ≤1024 →
+  1 col ≤768. No horizontal overflow anywhere (verified 1400…320); category
+  options scroll horizontally on mobile (`overflow-x:auto`, hidden scrollbar).
+- Count label pluralizes ("12 concepts" / "1 concept"); `Clear Filters` button
+  shown both in meta (when filtered) and in empty state; resets all three states.
+
 
 ## Tech stack
 
@@ -26,6 +70,7 @@ examples, playgrounds, and quizzes.
 - **Plain CSS** (organized per-component + global design-system files)
 - **Framer Motion** — animations (`framer-motion`)
 - **Lucide React** — icons (`lucide-react`)
+- **React Router** — routing (`react-router-dom@7`, SPA client-side routing)
 
 ### Do NOT add (later phases / not now)
 Backend, database, authentication, AI, Redux, Tailwind, Three.js, or any
@@ -477,3 +522,55 @@ Out of scope (later phases):
   and the script must `process.exit()` (open WebSockets keep Node alive) — a silent `process.exit(0)`
   in `finally` also eats real exceptions; report errors first.
 
+### 2026-08-31 — Phase 2.1: Explore Concepts page + React Router
+
+- **Routing added**: installed `react-router-dom@7` (only new dep). `App.jsx` now
+  uses `BrowserRouter` + `Routes` with a shared `Layout` (Navbar + children + Footer)
+  wrapped in `MotionConfig reducedMotion="user"`. Routes: `/` (Home + FinalCTA),
+  `/explore` (Explore), `/explore/:conceptId` (ConceptPlaceholder). Landing page
+  sections/design untouched.
+- **Navbar wiring**: `Explore` is now a `NavLink` (`.is-active` = lime underline, same
+  gold underline util); `How It Works`/`About` are plain anchors to `/#...`. Mobile
+  menu links + `Get Started` CTA + Logo are Router links (`Link`/`NavLink`) so SPA
+  nav works. Mobile link `.is-active` styling added. Removed the old route-change
+  `useEffect` (menu already closes via click handlers) to keep oxlint clean.
+- **New `src/data/concepts.js`**: 12 concepts (Arrays/Stack/Queue/Linked List Data
+  Structures; Binary Search/Recursion/Sorting Algorithms; HTTP/REST API Web; DNS
+  Networking; Operating Systems OS; JavaScript Event Loop Programming) each with
+  `id/title/category/difficulty/description/Icon/accent/tint` + exported
+  `CATEGORIES` (All, …) + `DIFFICULTIES` (All/Beginner/Intermediate/Advanced).
+  Per-category accent tokens (violet-bright, cyan, lime). Do not mutate.
+- **`pages/Explore/`**: hero (`EXPLORE UNBOX` label, "What do you want to
+  understand?" heading, description, working search), FilterBar (Category +
+  Difficulty), results meta (count + Clear Filters), 3→2→1 col grid (animated
+  keyed re-layout), empty state ("No concepts found." / "Try a different search or
+  filter." + Clear Filters). State: `searchQuery`/`selectedCategory`/
+  `selectedDifficulty` via `useState`; filtered with `useMemo` (case-insensitive
+  search on title/description/category + category + difficulty AND logic).
+- **New components**: `ExploreSearch/` (controlled lucide Search input),
+  `FilterBar/` (radiogroup button groups, violet active state, mobile horizontal
+  scroll), `ExploreConceptCard/` (motion.article + `<Link>`, icon/category
+  badge/title/desc/difficulty + `Explore →` arrow; Framer hover lift y:-6/icon
+  scale/arrow slide/border brighten — variant-label cascade, no continuous anim).
+- **`pages/ConceptPlaceholder/`**: temp route for `/explore/:id`; shows concept
+  icon/category/title/desc/difficulty + "Coming in Phase 2.2", back to `/explore`
+  link, and a "Concept not found" state for unknown ids. Real learning pages = Phase 2.2.
+- **Accessibility**: semantic `<main>`, h1 hierarchy, labelled search input,
+  real buttons, `radiogroup`/`aria-checked` on filters, focus-visible rings,
+  keyboard-accessible card links.
+- **NO new deps beyond react-router-dom.** `npm run lint` ✓, `npm run build` ✓
+  (2258 modules; `index-DuPK68nP.js` 397.99 kB gzip 125.20, `index-DqmrBUHL.css`
+  39.79 kB gzip 6.29).
+- **Verified via headless Edge CDP (`verify-explore.mjs` in temp, Vite :5191) — 52/52
+  PASS**: note the test expectation at exactly 1024 (grid is 2 cols there — correct
+  for tablet, 3 cols at 1025+). Search case-insensitive (binary/STACK/http),
+  singular/plural count, category Algos → 3, Algorithms+Beginner → 2, empty state +
+  Clear Filters (both empty-state and meta) restore all 3 states, card →
+  /explore/binary-search placeholder + Back, Navbar Explore active + nav, View All
+  Concepts + Start Exploring + Logo nav, Footer Concepts → /explore, horizontal
+  overflow none at 1400/1200/1025/1024/1000/768/390/320, grid 3/3/3/2/2/1/1/1,
+  mobile menu Explore active + nav, no console errors. Landing section strings all
+  present in built bundle (landing not redesigned).
+- **Note**: BrowserRouter means direct deep-links to `/explore`/`/explore/:id`
+  need SPA fallback on the host server (works fine with Vite dev; deployment must
+  route unknown paths to `index.html`).
