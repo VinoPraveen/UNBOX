@@ -53,6 +53,14 @@
   width: 100%;
 }
 
+.navbar__link.is-active {
+  color: var(--color-navy);
+}
+
+.navbar__link.is-active::after {
+  width: 100%;
+}
+
 .navbar__toggle {
   display: none;
   align-items: center;
@@ -88,6 +96,11 @@
 
 .navbar__mobile-link:hover {
   color: var(--color-navy);
+}
+
+.navbar__mobile-link.is-active {
+  color: var(--color-accent-bright);
+  font-weight: 700;
 }
 
 .navbar__mobile-link:last-child {

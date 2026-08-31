@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Boxes, Binary, Globe, Cpu } from 'lucide-react';
 import ConceptCard from './ConceptCard.jsx';
 import './ExploreConcepts.css';
@@ -81,15 +82,15 @@ export default function ExploreConcepts() {
         </motion.div>
 
         <div className="explore__footer">
-          <motion.a
-            className="btn explore__view"
-            href="#explore"
+          <motion.div
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
-            View All Concepts
-            <ArrowRight size={18} aria-hidden="true" />
-          </motion.a>
+            <Link to="/explore" className="btn explore__view">
+              View All Concepts
+              <ArrowRight size={18} aria-hidden="true" />
+            </Link>
+          </motion.div>
         </div>
       </div>
     </section>
