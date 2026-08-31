@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Boxes, Binary, Globe, Cpu } from 'lucide-react';
 import ConceptCard from './ConceptCard.jsx';
@@ -9,7 +8,7 @@ const CONCEPTS = [
     title: 'Arrays',
     category: 'Data Structures',
     description: 'Understand arrays, operations, and real-world use cases.',
-    accent: '#7C3AED',
+    accent: '#A78BFA',
     tint: 'rgba(124, 58, 237, 0.1)',
     Icon: Boxes,
   },
@@ -17,7 +16,7 @@ const CONCEPTS = [
     title: 'Binary Search',
     category: 'Algorithms',
     description: 'Learn efficient searching using divide and conquer.',
-    accent: '#7C3AED',
+    accent: '#A78BFA',
     tint: 'rgba(124, 58, 237, 0.1)',
     Icon: Binary,
   },

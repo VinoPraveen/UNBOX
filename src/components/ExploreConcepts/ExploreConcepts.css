@@ -61,7 +61,7 @@
 }
 
 .explore__view {
-  color: var(--color-accent);
+  color: var(--color-accent-bright);
   border: 1px solid rgba(124, 58, 237, 0.55);
   background-color: transparent;
   font-size: var(--text-base);
@@ -71,7 +71,7 @@
 .explore__view:hover {
   background-color: rgba(124, 58, 237, 0.08);
   border-color: var(--color-accent);
-  color: var(--color-accent);
+  color: var(--color-accent-bright);
 }
 
 @media (max-width: 1024px) {

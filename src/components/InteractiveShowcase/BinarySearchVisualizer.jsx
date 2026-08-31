@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, RotateCcw, Check, ChevronDown } from 'lucide-react';
 import { ARRAY, TARGET } from './binarySearchSteps.js';

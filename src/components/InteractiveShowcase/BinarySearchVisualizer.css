@@ -135,7 +135,7 @@
 }
 
 .bsearch__pointer--mid {
-  color: var(--color-accent);
+  color: var(--color-accent-bright);
 }
 
 .bsearch__pointer--found {

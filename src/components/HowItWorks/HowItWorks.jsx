@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Search, PackageOpen, Lightbulb } from 'lucide-react';
 import './HowItWorks.css';

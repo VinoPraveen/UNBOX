@@ -53,6 +53,7 @@ unnecessary library. Keep it simple and maintainable.
 | Main Text (`--color-navy` / `--color-text`) | `#F8FAFC` |
 | Secondary Text (`--color-muted`) | `#94A3B8` |
 | Border (`--color-border`) | `#1E293B` |
+| Accent Bright (`--color-accent-bright`) | `#A78BFA` |
 
 Note: token names are legacy (kept from light theme). Roles now:
 - `--color-navy` = light text/headings; `--color-white` = dark card surface;
@@ -434,4 +435,45 @@ Out of scope (later phases):
   footer outside main; no horizontal overflow at 1440/1024/768/390/320; footer desktop
   side-by-side + mobile stacked; all prior-section regressions intact (navbar 3 links, hero,
   hiw, 4 concept cards, 3 method cards, 3 stack controls); no console errors.
+
+### 2026-08-31 — Final polish / QA pass (landing page)
+- **No redesigns, no new sections, no content changes** — polish + correctness only. All 13 spec
+  areas: responsiveness, animation polish, reduced-motion, spacing, typography, navbar a11y,
+  accessibility, performance, unused-code removal, visual consistency, cross-section flow, build.
+- **Section order (now spec flow)** in `Home.jsx`: Hero → HowItWorks (`#how-it-works`) →
+  ExploreConcepts (`#concepts`, moved up from below InteractiveShowcase) → InteractiveShowcase
+  (`#explore` on hero) → LearningMethods → FinalCTA → Footer. `<main>` keeps hero + wrapped sections.
+- **Reduced motion**: `App.jsx` wraps the tree in `<MotionConfig reducedMotion="user">` (Framer
+  honors the OS setting); `global.css` adds `@media (prefers-reduced-motion: reduce)` forcing
+  `animation/transition-duration: 0.01ms` + `scroll-behavior: auto`.
+- **New convention — `--color-accent-bright: #A78BFA`** (violet-bright, contrast ~6:1 as text vs
+  ~2.4:1 for `#7C3AED`). Use `#A78BFA` for violet-accented TEXT/labels/pointers on dark
+  (`--color-accent` #7C3AED stays for fills/borders/CTAs). Applied to: `.demo__badge`,
+  `.showcase__badge`, `.bsearch__pointer--mid`, `.explore__view`, `#A78BFA` accents
+  (Arrays/Binary Search cards, Visualize method card).
+- **Accessibility**: Navbar mobile menu now closes on `Escape` and on click/tap outside
+  (native `document` listeners via `useEffect`/`useRef`, cleaned up). Stack-demo status no longer
+  shows literal "initial" — `DEFAULT_STATUS = 'PUSH adds to the top · POP removes the top'`.
+- **Anchors**: Footer "About" now resolves — `<footer id="about">`. Added
+  `section[id] { scroll-margin-top: calc(69px + 27px) }` so `#concepts`/`#how-it-works`/`#explore`
+  jumps clear the 69px sticky navbar (footer excluded so "About" still reaches the very bottom).
+- **Housekeeping**: removed unused `import React` from 11 components (React 19 auto-JSX),
+  removed unused `--color-navy-dark`, deleted unused `public/favicon.svg` (favicon is `/logo.png`).
+  `index.html`: added `<meta name="color-scheme" content="dark">` + `<meta name="theme-color"
+  content="#080B14">` (mobile/SW theme colors). `.showcase__heading` got `margin-top: var(--space-3)`
+  (label→heading gap). Sticky navbar renders `position: sticky` height 69px (desktop + mobile).
+- **NO new deps.** `npm run lint` ✓, `npm run build` ✓ (2239 modules; `index-BZ3AowT7.js`
+  347.21 kB gzip 108.95, `index-CNTMFw3z.css` 30.80 kB gzip 5.36).
+- **Verified via self-hosted headless Edge CDP** (raw WebSocket, no deps — `verify2.mjs`/`extra.mjs`
+  in temp, Vite on :5187 self-hosted inside the script; port filters avoid stale `edge://` targets).
+  **81/81** (bsearch STEP 1→4 + elim 4 at STEP 3 + found/disabled + Reset, stack 3→8→7 with full/disabled
+  + TOP pointer + status copy, Arrays chip fills input, mobile menu open→Escape→outside-close,
+  reduced-motion rule present, no overflow at 1440…320, no console errors) **+ 10/10 extras**
+  (anchor ids exist, footer Explore→real hashes, scroll-margin 96px, jump clears navbar, Inter loaded,
+  smooth/`document.fonts` ready, no horizontal scrollbar).
+- **Test-harness lesson**: after `.click()`, React 19 batches the re-render as a microtask — reading
+  state synchronously in the same `Runtime.evaluate` returns stale DOM. Use click → `await sleep(~300ms)`
+  → read, across separate evals. Harness `connect()` must resolve the unwrapped CDP `msg.result`,
+  and the script must `process.exit()` (open WebSockets keep Node alive) — a silent `process.exit(0)`
+  in `finally` also eats real exceptions; report errors first.
 

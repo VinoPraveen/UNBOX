@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, ArrowRight } from 'lucide-react';
 import InteractiveDemo from '../../components/InteractiveDemo/InteractiveDemo.jsx';
 import HowItWorks from '../../components/HowItWorks/HowItWorks.jsx';
+import ExploreConcepts from '../../components/ExploreConcepts/ExploreConcepts.jsx';
 import InteractiveShowcase from '../../components/InteractiveShowcase/InteractiveShowcase.jsx';
 import LearningMethods from '../../components/LearningMethods/LearningMethods.jsx';
-import ExploreConcepts from '../../components/ExploreConcepts/ExploreConcepts.jsx';
 import './Home.css';
-// this is vetri
 const SUGGESTED_TOPICS = ['Arrays', 'Recursion', 'HTTP', 'Binary Search'];
 
 const containerVariants = {
@@ -100,11 +99,11 @@ export default function Home() {
       </div>
       <HowItWorks />
 
+      <ExploreConcepts />
+
       <InteractiveShowcase />
 
       <LearningMethods />
-
-      <ExploreConcepts />
     </main>
   );
 }
