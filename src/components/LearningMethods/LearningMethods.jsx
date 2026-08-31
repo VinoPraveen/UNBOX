@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Eye, FlaskConical, CircleCheck } from 'lucide-react';
 import LearningMethodCard from './LearningMethodCard.jsx';
@@ -11,7 +10,7 @@ const METHODS = [
     title: 'Visualize',
     description:
       'Watch concepts come to life through interactive animations and step-by-step visualizations.',
-    accent: '#7C3AED',
+    accent: '#A78BFA',
   },
   {
     id: 'experiment',

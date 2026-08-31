@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, RotateCcw, Layers } from 'lucide-react';
 import './InteractiveDemo.css';
@@ -7,6 +7,7 @@ const INITIAL_VALUES = [10, 20, 30];
 const MAX_SIZE = 8;
 const MIN_PUSH = 40;
 const MAX_PUSH = 99;
+const DEFAULT_STATUS = 'PUSH adds to the top · POP removes the top';
 
 function randomValue() {
   return Math.floor(Math.random() * (MAX_PUSH - MIN_PUSH + 1)) + MIN_PUSH;
@@ -21,7 +22,7 @@ const spring = { type: 'spring', stiffness: 420, damping: 32 };
 export default function InteractiveDemo() {
   const [stack, setStack] = useState(() => toItems(INITIAL_VALUES));
   const nextId = useRef(INITIAL_VALUES.length);
-  const [lastAction, setLastAction] = useState('initial');
+  const [lastAction, setLastAction] = useState(DEFAULT_STATUS);
 
   const push = useCallback(() => {
     if (stack.length >= MAX_SIZE) return;

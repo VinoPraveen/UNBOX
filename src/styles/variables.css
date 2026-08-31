@@ -1,7 +1,6 @@
 :root {
   /* Brand colors — futuristic dark theme */
   --color-navy: #f8fafc; /* primary text / headings (light) */
-  --color-navy-dark: #cbd5e1; /* lighter emphasis text / hover */
   --color-gold: #a3ff12; /* highlight accent (lime) — small highlights */
   --color-bg: #080b14; /* page background */
   --color-white: #111827; /* card / surface */
@@ -12,6 +11,7 @@
 
   /* Futuristic accents */
   --color-accent: #7c3aed; /* primary accent (violet) */
+  --color-accent-bright: #a78bfa; /* accent as text/glyphs on dark surfaces */
   --color-cyan: #22d3ee; /* secondary accent (cyan) */
   --color-highlight: #a3ff12; /* highlight (lime) */
 

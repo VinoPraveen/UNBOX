@@ -1,4 +1,3 @@
-import React from 'react';
 import { GitBranch, ExternalLink } from 'lucide-react';
 import './Footer.css';
 
@@ -15,7 +14,7 @@ const CONNECT_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="footer">
+    <footer id="about" className="footer">
       <div className="footer__inner">
         <div className="footer__brand">
           <div className="footer__wordmark">

@@ -30,7 +30,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-bright);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   padding: 2px 10px;

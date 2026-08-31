@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import Logo from '../Logo/Logo.jsx';
@@ -12,11 +12,34 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const headerRef = useRef(null);
 
   const closeMenu = () => setMenuOpen(false);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+
+    const onPointerDown = (event) => {
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown);
+    };
+  }, [menuOpen]);
+
   return (
     <motion.header
+      ref={headerRef}
       className="navbar"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
