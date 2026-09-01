@@ -1,0 +1,30 @@
+.bpg-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-6);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.bpg-idle__icon {
+  display: inline-flex;
+  color: var(--color-accent-bright);
+}
+
+.bpg-idle__title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-navy);
+  margin: 0;
+}
+
+.bpg-idle__text {
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--color-muted);
+  max-width: 28rem;
+  margin: 0;
+}

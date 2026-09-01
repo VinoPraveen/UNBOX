@@ -85,7 +85,7 @@ export default function Home() {
                 Start Exploring
                 <ArrowRight size={18} />
               </Link>
-            </motion.div>
+            </motion.div>   
           </motion.div>
 
           <motion.div

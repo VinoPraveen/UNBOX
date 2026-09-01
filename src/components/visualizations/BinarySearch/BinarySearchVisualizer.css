@@ -5,91 +5,6 @@
   min-width: 0;
 }
 
-.cviz__main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-5);
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  min-width: 0;
-}
-
-.cviz__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
-.cviz__title-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.cviz__title {
-  font-size: var(--text-lg);
-  color: var(--color-navy);
-}
-
-.cviz__sub {
-  font-size: var(--text-sm);
-  color: var(--color-muted);
-}
-
-.cviz__progress-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.cviz__progress {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--color-cyan);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface);
-  border-radius: 999px;
-  padding: 3px 12px;
-  white-space: nowrap;
-}
-
-.cviz__dots {
-  display: flex;
-  gap: 6px;
-}
-
-.cviz__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  transition:
-    background-color var(--transition-base),
-    border-color var(--transition-base);
-}
-
-.cviz__dot--done {
-  background-color: rgba(124, 58, 237, 0.4);
-  border-color: var(--color-accent);
-}
-
-.cviz__dot--current {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-.cviz__dot--found {
-  background-color: var(--color-highlight);
-  border-color: var(--color-highlight);
-}
-
 .cviz__board {
   display: flex;
   flex-direction: column;
@@ -172,10 +87,27 @@
   color: var(--color-navy);
   font-weight: 700;
   font-size: var(--text-lg);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   transition:
     background-color 0.3s ease,
     border-color 0.3s ease,
     color 0.3s ease;
+}
+
+.cviz__array--dense {
+  column-gap: 6px;
+}
+
+.cviz__array--dense .cviz__cell {
+  height: 40px;
+  font-size: var(--text-sm);
+}
+
+.cviz__array--dense .cviz__pointer {
+  font-size: 8px;
 }
 
 .cviz__cell--mid {
@@ -224,30 +156,30 @@
   font-weight: 600;
 }
 
-.cviz__controls {
+.cviz__facts {
   display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-top: var(--space-1);
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-6);
+  margin-top: var(--space-2);
 }
 
-.cviz__btn {
-  flex: 1;
-  font-size: var(--text-sm);
-  padding: var(--space-3);
-}
-
-.cviz__step {
-  flex-shrink: 0;
-  font-size: var(--text-sm);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+.cviz__fact {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--color-muted);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface);
-  border-radius: 999px;
-  padding: 7px 14px;
-  white-space: nowrap;
+}
+
+.cviz__fact-value {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .cviz__explain {
@@ -318,6 +250,21 @@
   width: fit-content;
 }
 
+.cviz__not-found {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-3);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+  background-color: rgba(148, 163, 184, 0.08);
+  border: 1px dashed rgba(148, 163, 184, 0.45);
+  border-radius: 999px;
+  padding: 4px 14px;
+  width: fit-content;
+}
+
 .cviz__complexity {
   display: flex;
   flex-direction: column;
@@ -345,12 +292,13 @@
   letter-spacing: 0.02em;
 }
 
-@media (max-width: 768px) {
-  .cviz__main {
-    padding: var(--space-3);
-    gap: var(--space-1);
+@media (max-width: 1024px) {
+  .cviz {
+    flex-direction: column;
   }
+}
 
+@media (max-width: 768px) {
   .cviz__board {
     padding: var(--space-3);
     gap: var(--space-1);
@@ -361,6 +309,11 @@
     font-size: var(--text-base);
   }
 
+  .cviz__array--dense .cviz__cell {
+    height: 34px;
+    font-size: var(--text-xs);
+  }
+
   .cviz__pointer,
   .cviz__array {
     column-gap: 6px;
@@ -368,23 +321,6 @@
 
   .cviz__pointers {
     min-height: 38px;
-  }
-
-  .cviz__controls {
-    flex-wrap: wrap;
-  }
-
-  .cviz__btn {
-    flex: 1 1 42%;
-    justify-content: center;
-  }
-
-  .cviz__step {
-    order: -1;
-    flex: 1 1 100%;
-    display: flex;
-    justify-content: center;
-    margin-bottom: var(--space-1);
   }
 
   .cviz__explain {

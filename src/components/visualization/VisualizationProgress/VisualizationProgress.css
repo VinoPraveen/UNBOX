@@ -1,0 +1,43 @@
+.viz-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.viz-progress__pill {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-cyan);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  border-radius: 999px;
+  padding: 3px 12px;
+  white-space: nowrap;
+}
+
+.viz-progress__dots {
+  display: flex;
+  gap: 6px;
+}
+
+.viz-progress__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.viz-progress__dot--done {
+  background-color: rgba(124, 58, 237, 0.4);
+  border-color: var(--color-accent);
+}
+
+.viz-progress__dot--current {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}

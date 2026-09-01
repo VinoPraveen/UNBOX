@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { visualizations } from '../visualizations/registry.js';
+import VisualizationEngine from '../visualization/VisualizationEngine/VisualizationEngine.jsx';
 import './VisualizationSection.css';
 
 const revealVariants = {
@@ -13,23 +12,6 @@ const revealVariants = {
 };
 
 export default function VisualizationSection({ concept }) {
-  const {
-    visualizationSteps,
-    visualizationConfig,
-    complexity,
-    title,
-    visualization,
-    visualizationBlurb,
-  } = concept;
-  const Visualizer = visualizations[visualization];
-  const [step, setStep] = useState(1);
-  const total = visualizationSteps.length;
-  const snapshot = visualizationSteps[step - 1];
-
-  const handleNext = () => setStep((current) => Math.min(current + 1, total));
-  const handlePrev = () => setStep((current) => Math.max(current - 1, 1));
-  const handleReset = () => setStep(1);
-
   return (
     <section id="visualize" className="concept-section concept-viz">
       <div className="concept-viz__inner">
@@ -42,7 +24,7 @@ export default function VisualizationSection({ concept }) {
         >
           <p className="concept-viz__label">Interactive Visualization</p>
           <h2 className="concept-viz__heading">Watch it happen, step by step.</h2>
-          <p className="concept-viz__subtitle">{visualizationBlurb}</p>
+          <p className="concept-viz__subtitle">{concept.visualizationBlurb}</p>
         </motion.div>
 
         <motion.div
@@ -52,18 +34,7 @@ export default function VisualizationSection({ concept }) {
           viewport={{ once: true, amount: 0.2 }}
           variants={revealVariants}
         >
-          {Visualizer && (
-            <Visualizer
-              config={{ ...visualizationConfig, title }}
-              complexity={complexity}
-              step={step}
-              total={total}
-              snapshot={snapshot}
-              onNext={handleNext}
-              onPrev={handlePrev}
-              onReset={handleReset}
-            />
-          )}
+          <VisualizationEngine concept={concept} />
         </motion.div>
       </div>
     </section>

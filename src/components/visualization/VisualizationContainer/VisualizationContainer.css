@@ -1,0 +1,14 @@
+.viz-container {
+  padding: var(--space-5);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .viz-container {
+    padding: var(--space-3);
+  }
+}
