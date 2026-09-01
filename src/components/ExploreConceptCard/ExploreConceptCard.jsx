@@ -33,7 +33,7 @@ export default function ExploreConceptCard({ concept }) {
       whileHover="hover"
       style={{ '--card-accent': accent, '--card-tint': tint }}
     >
-      <Link to={`/explore/${id}`} className="explore-card__link">
+      <Link to={`/concept/${id}`} className="explore-card__link">
         <div className="explore-card__top">
           <motion.div
             className="explore-card__icon"
