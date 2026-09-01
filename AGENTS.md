@@ -574,3 +574,81 @@ Out of scope (later phases):
 - **Note**: BrowserRouter means direct deep-links to `/explore`/`/explore/:id`
   need SPA fallback on the host server (works fine with Vite dev; deployment must
   route unknown paths to `index.html`).
+
+### 2026-08-31 — Phase 2.2: Reusable Concept Learning Experience
+
+- **Reusable concept page** at `/concept/:slug`, driven entirely by data + a
+  visualization registry. Landing page, Explore, Navbar, Footer untouched.
+  Delete `ConceptPlaceholder` (replaced by the real page). `ExploreConceptCard`
+  now links to `/concept/:id`.
+- **Routes added** in `App.jsx`: `/concept/:slug` (ConceptPage),
+  `/playground/:slug` (PlaygroundPlaceholder), `/quiz/:slug` (QuizPlaceholder).
+  Removed `/explore/:conceptId`. Shared `Layout` keeps Navbar+Footer.
+- **Data layer**:
+  - `src/data/concepts/` now holds per-concept modules + a registry.
+  - `binarySearch.js` — self-contained concept config: `slug/title/category/
+    difficulty/estimatedTime/description/Icon/accent/tint/visualization/
+    complexity/visualizationBlurb/overview/howItWorks/visualizationSteps/
+    visualizationConfig`.
+  - `registry.js` — `getConceptData(slug)` + map. **Add a future concept in 3
+    steps: (1) new `x.js` data file, (2) new viz component, (3) one registry
+    line** — `registry.js` (data) + `visualizations/registry.js` (component).
+- **`pages/Concept/ConceptPage.jsx`**: reads slug, looks up registry, handles
+  "Concept not found" + Back to Explore (no crash). Scrolls to top on slug
+  change. Tracks active section via `IntersectionObserver` (rootMargin band).
+  Renders: ConceptHeader → ConceptNav → ConceptProgress → OverviewSection →
+  HowItWorksSection → VisualizationSection → Practice preview → Challenge
+  preview. Semantic `<main>`, single h1, h2 section headings.
+- **Reusable concept components** (`components/concept/`, all data-driven):
+  - `ConceptHeader` — Back to Explore, category (uppercase, accent), h1 title,
+    description, Difficulty + Estimated time badges, subtle glow bg.
+  - `ConceptNav` — sticky (`top:69px`, blur surface bg), 5 items
+    (Overview/How It Works/Visualize/Practice/Challenge), smooth `scrollIntoView`,
+    lime underline active state, horizontal-scroll on mobile (hidden scrollbar).
+  - `ConceptProgress` — "YOUR PROGRESS" (uppercase via CSS), ●━●━○━○ dots,
+    labels 1..4 Understand/Visualize/Practice/Challenge, current = lime dot,
+    done = violet, wraps on mobile.
+  - `OverviewSection` — "What is X?" heading + body + static array visual
+    (7 cells, target cell highlighted via accent) + `Target: 60` pill.
+  - `HowItWorksSection` — numbered 01..04 steps (gold numbers, titles, muted
+    descriptions, left timeline connector), staggered scroll reveal.
+  - `VisualizationSection` — owns `step` state (`useState`, clamps 1..total);
+    resolves visualizer from `visualizations/registry.js` by `concept.visualization`
+    **(imported map, not a call, so oxlint stays clean — a function-call return
+    triggers `react(static-components)`)**.
+- **`visualizations/BinarySearch/BinarySearchVisualizer.jsx`**: self-contained
+  concept version (adapted from InteractiveShowcase): header + STEP pill + dots,
+  LOW/MID/HIGH pointers (Framer layout spring), array cells (eliminate dim/mid
+  violet/found lime + check badge), aria-live status, Previous/Next Step/Reset
+  (correct disabled states), inline explanation panel (AnimatePresence), found
+  chip, complexity (Time O(log n)/Space O(1)). State stays in parent; purely
+  presentational. Config/total/snapshot via props.
+- **Preview teasers**: data-driven `PreviewSection` in ConceptPage — Practice
+  ("Ready to try it yourself?" → `/playground/:slug` "Open Playground") +
+  Challenge ("Think you've got it?" → `/quiz/:slug` "Take the Challenge").
+- **Placeholders**: `PlaygroundPlaceholder.jsx` + `QuizPlaceholder.jsx` share
+  `pages/Placeholder.css`; each reads slug, shows concept title, Back to Concept
+  → `/concept/:slug`. No Playground/Quiz logic (later phases).
+- **Styling**: per-component BEM CSS with existing tokens, sticky nav clearance
+  via global `section[id] scroll-margin-top`. Two-column viz grid (1.4fr/1fr)
+  → single ≤1024. `MotionConfig reducedMotion="user"` + global reduced-motion
+  media query honored.
+- **NO new deps.** `npm run lint` ✓ (clean — removed an unused `Promise`-free
+  import and kept registry imports static), `npm run build` ✓ (2278 modules;
+  `index-CkgMBawq.js` 414.98 kB gzip 128.19, `index-BizMOwNh.css` 54.81 kB).
+- **Verified via headless Edge CDP — 72/72 main + 20/20 keyboard/a11y + 8/8
+  flow**: header/meta/back, nav 5 items (buttons, aria-label, tabIndex 0),
+  progress stages/labels/current, overview heading/body/7 cells/target
+  highlight, how-it-works 4 numbered steps, 4-step engine (START→CHECK 40→
+  NARROW 50·60·70/dim 0.3→FOUND 60 lime + check; Previous/Next disabled at ends;
+  Reset restores; panel badge/heading/found chip; complexity), keyboard Enter on
+  Prev/Next/Reset, aria-live on status+progress, single h1 + 5 h2, no overflow
+  at 1440/768/390/320, array not clipped on mobile, nav click smooth-scrolls +
+  active="Visualize", Explore still 12 cards + card links to /concept/, invalid
+  slug → "Concept not found" + Back to Explore, placeholder headings + back
+  links, landing `/` still renders + Start Exploring → /explore, unimplemented
+  concept (e.g. /concept/arrays) 404s gracefully, no console errors.
+- **Test-harness lesson**: an unrealistically tall viewport (e.g. 2600px) can
+  exceed the document height so `scrollIntoView` can't reach lower sections —
+  use a realistic viewport (1000px) for nav-scroll verification. `NodeList.every`
+  may be flaky through CDP `returnByValue`; wrap node lists in `Array.from(...)`.
