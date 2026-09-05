@@ -4,29 +4,51 @@ import { generateBinarySearchStates } from './binarySearchAlgorithm.js';
 const ARRAY_DEFAULT = [10, 20, 30, 40, 50, 60, 70];
 const TARGET_DEFAULT = 60;
 
+const MAX_ARRAY_LENGTH = 30;
+
+function parseArray(raw) {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw !== 'string') return [];
+  return raw
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part !== '')
+    .map((part) => Number(part));
+}
+
+function parseTarget(raw) {
+  if (typeof raw === 'number') return raw;
+  if (typeof raw !== 'string') return Number.NaN;
+  return Number(raw.trim());
+}
+
 export function validate(state) {
   const errors = {};
+  const arr = parseArray(state.array);
 
-  if (!Array.isArray(state.array) || state.array.length === 0) {
+  if (arr.length === 0) {
     errors.array = 'Please enter at least one number.';
-  } else if (
-    !state.array.every((value) => typeof value === 'number' && Number.isFinite(value))
-  ) {
+  } else if (arr.length > MAX_ARRAY_LENGTH) {
+    errors.array = `Please enter at most ${MAX_ARRAY_LENGTH} numbers for the best view.`;
+  } else if (!arr.every((v) => Number.isFinite(v))) {
     errors.array = 'Please enter only valid numbers.';
   } else {
-    const sorted = state.array.every((value, i) => i === 0 || state.array[i - 1] <= value);
-    if (!sorted) errors.array = 'Binary Search requires a sorted array.';
+    const sorted = arr.every((v, i) => i === 0 || arr[i - 1] <= v);
+    if (!sorted) {
+      errors.array = 'Binary Search requires a sorted array.';
+    }
   }
 
-  if (typeof state.target !== 'number' || !Number.isFinite(state.target)) {
+  const target = parseTarget(state.target);
+  if (!Number.isFinite(target)) {
     errors.target = 'Please enter a valid target.';
   }
 
-  return { ok: Object.keys(errors).length === 0, errors };
+  return { ok: Object.keys(errors).length === 0, errors, parsedArray: arr, parsedTarget: target };
 }
 
 function run(values, { setErrors, setStatus, setExperiment }) {
-  const { ok, errors } = validate(values);
+  const { ok, errors, parsedArray, parsedTarget } = validate(values);
 
   if (!ok) {
     setErrors(errors ?? {});
@@ -34,21 +56,23 @@ function run(values, { setErrors, setStatus, setExperiment }) {
     setStatus({
       kind: 'error',
       title: 'Please fix the input before running.',
-      detail: Object.values(errors ?? {}).find(Boolean) ?? 'Check the highlighted fields and try again.',
+      detail:
+        Object.values(errors ?? {}).find(Boolean) ??
+        'Check the highlighted fields and try again.',
     });
     return;
   }
 
-  const states = generateBinarySearchStates(values.array, values.target);
+  const states = generateBinarySearchStates(parsedArray, parsedTarget);
   const last = states[states.length - 1];
   const comparisons = last.comparisonCount;
   const unit = comparisons === 1 ? 'comparison' : 'comparisons';
 
   setErrors({});
   setExperiment({
-    runId: Date.now(),
-    array: values.array,
-    target: values.target,
+    runId: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    array: parsedArray,
+    target: parsedTarget,
     states,
   });
 
@@ -57,12 +81,12 @@ function run(values, { setErrors, setStatus, setExperiment }) {
       ? {
           kind: 'success',
           title: 'Target found.',
-          detail: `${values.target} matches the array after ${comparisons} ${unit}.`,
+          detail: `${parsedTarget} matches the array after ${comparisons} ${unit}.`,
         }
       : {
           kind: 'notice',
           title: 'Target not found.',
-          detail: `${values.target} is not present in this array after ${comparisons} ${unit}.`,
+          detail: `${parsedTarget} is not present in this array after ${comparisons} ${unit}.`,
         }
   );
 }
@@ -73,7 +97,8 @@ function onReset(_values, { setErrors, setStatus, setExperiment }) {
   setStatus({
     kind: 'idle',
     title: 'Ready to experiment.',
-    detail: 'Enter a sorted array and a target value, then press Run to step through the search.',
+    detail:
+      'Enter a sorted array and a target value, then press Run to step through the search.',
   });
 }
 
@@ -91,7 +116,7 @@ const binarySearch = {
       type: 'array',
       defaultValue: ARRAY_DEFAULT,
       placeholder: '10, 20, 30, 40, 50, 60, 70',
-      help: 'Comma-separated numbers, ascending order. Up to 50 values for the best view.',
+      help: 'Comma-separated numbers in ascending order.',
     },
     {
       id: 'target',
@@ -104,7 +129,12 @@ const binarySearch = {
   ],
   operations: [
     { id: 'run', label: 'Run', variant: 'gold', ariaLabel: 'Run binary search' },
-    { id: 'reset', label: 'Reset', variant: 'ghost', ariaLabel: 'Reset the experiment' },
+    {
+      id: 'reset',
+      label: 'Reset',
+      variant: 'ghost',
+      ariaLabel: 'Reset the experiment',
+    },
   ],
   validate,
   run,

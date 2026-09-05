@@ -1,132 +1,116 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronDown, SearchX } from 'lucide-react';
+import { Check, SearchX } from 'lucide-react';
 import './BinarySearchVisualizer.css';
-
-const spring = { type: 'spring', stiffness: 320, damping: 28 };
-
-const arrayVariants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.05 } },
-};
-
-const cellVariants = {
-  hidden: { opacity: 0, scale: 0.9, y: 8 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: 'easeOut' },
-  },
-};
 
 const gridTemplate = (count) => `repeat(${count}, minmax(0, 1fr))`;
 
-export default function BinarySearchVisualizer({
-  config,
-  complexity,
-  snapshot,
-}) {
+function PointerLabel({ label, className, id }) {
+  return (
+    <motion.span
+      layoutId={id}
+      className={`cviz__pointer ${className}`}
+      layout
+      transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+    >
+      {label}
+    </motion.span>
+  );
+}
+
+export default function BinarySearchVisualizer({ config, complexity, snapshot }) {
   const { array, target } = config;
+  const dense = array.length > 12;
+  const huge = array.length > 16;
+  const scrollMinWidth = huge ? `${array.length * 44}px` : undefined;
+
   const pointerLow = snapshot ? snapshot.low : 0;
   const pointerHigh = snapshot ? snapshot.high : array.length - 1;
   const pointerMid = snapshot ? snapshot.mid : null;
   const found = Boolean(snapshot?.found);
   const notFound = Boolean(snapshot?.notFound);
   const showFacts = snapshot?.comparisonCount !== undefined;
-  const dense = array.length > 12;
+  const cols = gridTemplate(array.length);
+
+  const pointerGlyphs = array.map((_, index) => {
+    const isLow = pointerLow === index;
+    const isHigh = pointerHigh === index;
+    const isMid = pointerMid === index;
+
+    const items = [];
+    if (isMid) {
+      items.push(
+        <PointerLabel
+          key="mid"
+          id="cviz-ptr-mid"
+          label="MID"
+          className={'cviz__pointer--mid' + (found ? ' cviz__pointer--found' : '')}
+        />
+      );
+    }
+    if (isLow && !isMid) {
+      items.push(
+        <PointerLabel key="low" id="cviz-ptr-low" label="LOW" className="cviz__pointer--low" />
+      );
+    }
+    if (isHigh && !isMid) {
+      items.push(
+        <PointerLabel
+          key="high"
+          id="cviz-ptr-high"
+          label="HIGH"
+          className="cviz__pointer--high"
+        />
+      );
+    }
+    return items.length ? items : null;
+  });
 
   return (
     <div className="cviz">
-      <div className="cviz__board">
-        <div
-          className="cviz__pointers"
-          style={{ gridTemplateColumns: gridTemplate(array.length) }}
-          aria-hidden="true"
-        >
-          {array.map((_, index) => (
-            <div className="cviz__slot" key={`pointer-${index}`}>
-              {pointerMid === index && (
-                <motion.span
-                  layout
-                  transition={spring}
-                  className={
-                    'cviz__pointer cviz__pointer--mid' +
-                    (found ? ' cviz__pointer--found' : '')
-                  }
-                >
-                  MID
-                  <ChevronDown size={13} strokeWidth={2.5} />
-                </motion.span>
-              )}
-              {pointerLow === index && pointerLow !== pointerMid && (
-                <motion.span
-                  layout
-                  transition={spring}
-                  className="cviz__pointer cviz__pointer--low"
-                >
-                  LOW
-                  <ChevronDown size={13} strokeWidth={2.5} />
-                </motion.span>
-              )}
-              {pointerHigh === index && pointerHigh !== pointerMid && (
-                <motion.span
-                  layout
-                  transition={spring}
-                  className="cviz__pointer cviz__pointer--high"
-                >
-                  HIGH
-                  <ChevronDown size={13} strokeWidth={2.5} />
-                </motion.span>
-              )}
-            </div>
-          ))}
+      <div className="cviz__stage">
+        <div className={'cviz__scroll' + (huge ? ' cviz__scroll--huge' : '')}>
+          <div
+            className="cviz__pointers"
+            style={{ gridTemplateColumns: cols, minWidth: scrollMinWidth }}
+            aria-hidden="true"
+          >
+            {pointerGlyphs.map((glyphs, index) => (
+              <div className="cviz__slot" key={`pointer-${index}`}>
+                {glyphs}
+              </div>
+            ))}
+          </div>
+
+          <ol
+            className={'cviz__array' + (dense ? ' cviz__array--dense' : '')}
+            style={{ gridTemplateColumns: cols, minWidth: scrollMinWidth }}
+          >
+            {array.map((value, index) => {
+              const eliminated = Boolean(snapshot?.eliminated?.[index]);
+              const isMid = pointerMid === index;
+              const foundCell = found && isMid;
+
+              const cellClass =
+                'cviz__cell' +
+                (eliminated ? ' cviz__cell--elim' : ' cviz__cell--range') +
+                (isMid && !foundCell ? ' cviz__cell--mid' : '') +
+                (foundCell ? ' cviz__cell--found' : '');
+
+              return (
+                <li className="cviz__array-item" key={`cell-${index}`}>
+                  <div className={cellClass}>
+                    <span className="cviz__cell-value">{value}</span>
+                    {foundCell && (
+                      <span className="cviz__cell-check" aria-hidden="true">
+                        <Check size={12} strokeWidth={3} />
+                      </span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
         </div>
-
-        <motion.ol
-          className={'cviz__array' + (dense ? ' cviz__array--dense' : '')}
-          style={{ gridTemplateColumns: gridTemplate(array.length) }}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.5 }}
-          variants={arrayVariants}
-        >
-          {array.map((value, index) => {
-            const eliminated = Boolean(snapshot?.eliminated?.[index]);
-            const isMid = pointerMid === index;
-            const foundCell = found && isMid;
-
-            return (
-              <motion.li className="cviz__array-item" key={index} variants={cellVariants}>
-                <motion.div
-                  className={
-                    'cviz__cell' +
-                    (eliminated ? ' cviz__cell--elim' : '') +
-                    (isMid && !foundCell ? ' cviz__cell--mid' : '') +
-                    (foundCell ? ' cviz__cell--found' : '')
-                  }
-                  initial={false}
-                  animate={
-                    eliminated ? { opacity: 0.3, scale: 0.94 } : { opacity: 1, scale: 1 }
-                  }
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
-                >
-                  <span className="cviz__cell-value">{value}</span>
-                  {foundCell && (
-                    <motion.span
-                      className="cviz__cell-check"
-                      aria-hidden="true"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: 'spring', stiffness: 340, damping: 22 }}
-                    >
-                      <Check size={12} strokeWidth={3} />
-                    </motion.span>
-                  )}
-                </motion.div>
-              </motion.li>
-            );
-          })}
-        </motion.ol>
 
         <p
           className={'cviz__status' + (found ? ' cviz__status--found' : '')}

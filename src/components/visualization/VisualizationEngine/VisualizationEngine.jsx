@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Construction } from 'lucide-react';
@@ -33,7 +33,7 @@ function ComingSoon() {
   );
 }
 
-export default function VisualizationEngine({ concept }) {
+export default function VisualizationEngine({ concept, embedded = false, autoPlay = false }) {
   const vizConfig = getVisualization(concept.visualization);
 
   if (!vizConfig) {
@@ -56,10 +56,17 @@ export default function VisualizationEngine({ concept }) {
     );
   }
 
-  return <StepBasedEngine concept={concept} vizConfig={vizConfig} />;
+  return (
+    <StepBasedEngine
+      concept={concept}
+      vizConfig={vizConfig}
+      embedded={embedded}
+      autoPlay={autoPlay}
+    />
+  );
 }
 
-function StepBasedEngine({ concept, vizConfig }) {
+function StepBasedEngine({ concept, vizConfig, embedded = false, autoPlay = false }) {
   const {
     visualizationSteps,
     visualizationConfig,
@@ -74,10 +81,16 @@ function StepBasedEngine({ concept, vizConfig }) {
   const {
     isPlaying,
     speed,
+    play,
     togglePlayPause,
     handleSpeedChange,
     reset,
   } = usePlayback({ total, setStep });
+
+  useEffect(() => {
+    if (autoPlay) play();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleNext = useCallback(
     () => setStep((current) => Math.min(current + 1, total)),
@@ -89,6 +102,26 @@ function StepBasedEngine({ concept, vizConfig }) {
     []
   );
 
+  const engineBody = (
+    <>
+      <div className="viz-engine__header">
+        <div className="viz-engine__header-left">
+          <h3 className="viz-engine__title">{title}</h3>
+        </div>
+        <VisualizationProgress step={step} total={total} />
+      </div>
+      <div className="viz-engine__stage">
+        <vizConfig.Component
+          config={{ ...visualizationConfig, title }}
+          complexity={complexity}
+          step={step}
+          total={total}
+          snapshot={snapshot}
+        />
+      </div>
+    </>
+  );
+
   return (
     <motion.div
       className="viz-engine"
@@ -97,34 +130,41 @@ function StepBasedEngine({ concept, vizConfig }) {
       viewport={{ once: true, amount: 0.2 }}
       variants={revealVariants}
     >
-      <VisualizationContainer>
-        <div className="viz-engine__header">
-          <div className="viz-engine__header-left">
-            <h3 className="viz-engine__title">{title}</h3>
+      {embedded ? (
+        <>
+          {engineBody}
+          <div className="viz-engine__controls">
+            <VisualizationControls
+              step={step}
+              total={total}
+              speed={speed}
+              isPlaying={isPlaying}
+              onPrev={handlePrev}
+              onNext={handleNext}
+              onReset={reset}
+              onTogglePlayPause={togglePlayPause}
+              onSpeedChange={handleSpeedChange}
+            />
           </div>
-          <VisualizationProgress step={step} total={total} />
-        </div>
-
-        <vizConfig.Component
-          config={{ ...visualizationConfig, title }}
-          complexity={complexity}
-          step={step}
-          total={total}
-          snapshot={snapshot}
-        />
-      </VisualizationContainer>
-
-      <VisualizationControls
-        step={step}
-        total={total}
-        speed={speed}
-        isPlaying={isPlaying}
-        onPrev={handlePrev}
-        onNext={handleNext}
-        onReset={reset}
-        onTogglePlayPause={togglePlayPause}
-        onSpeedChange={handleSpeedChange}
-      />
+        </>
+      ) : (
+        <>
+          <VisualizationContainer>
+            {engineBody}
+          </VisualizationContainer>
+          <VisualizationControls
+            step={step}
+            total={total}
+            speed={speed}
+            isPlaying={isPlaying}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            onReset={reset}
+            onTogglePlayPause={togglePlayPause}
+            onSpeedChange={handleSpeedChange}
+          />
+        </>
+      )}
     </motion.div>
   );
 }

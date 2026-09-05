@@ -27,6 +27,15 @@
   color: var(--color-navy);
 }
 
+.viz-engine__stage {
+  min-width: 0;
+}
+
+.viz-engine__controls {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+
 .viz-engine__coming-soon {
   display: flex;
   flex-direction: column;

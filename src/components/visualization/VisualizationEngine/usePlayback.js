@@ -76,6 +76,7 @@ export default function usePlayback({ total, setStep }) {
   return {
     isPlaying,
     speed,
+    play,
     togglePlayPause,
     handleSpeedChange,
     reset,

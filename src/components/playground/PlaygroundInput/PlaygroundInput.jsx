@@ -1,55 +1,38 @@
 import './PlaygroundInput.css';
 
-function arrayToText(value) {
-  if (!Array.isArray(value)) return '';
-  return value.join(', ');
-}
-
-function textToArray(text) {
-  return text
-    .split(',')
-    .map((part) => part.trim())
-    .filter((part) => part !== '')
-    .map((part) => {
-      const num = Number(part);
-      return Number.isNaN(num) ? part : num;
-    });
+function valueToText(value, type) {
+  if (type === 'array') {
+    if (Array.isArray(value)) return value.join(', ');
+    return value === undefined || value === null ? '' : String(value);
+  }
+  if (value === '' || value === null || value === undefined) return '';
+  return value;
 }
 
 export default function PlaygroundInput({ field, value, onChange, error }) {
   const { id, label, type, placeholder, help } = field;
 
-  const handleChange = (raw) => {
-    if (type === 'array') {
-      onChange(textToArray(raw));
-    } else if (type === 'number') {
-      const trimmed = raw.trim();
-      onChange(trimmed === '' ? '' : Number(trimmed));
-    } else {
-      onChange(raw);
-    }
-  };
-
   const isTextarea = type === 'array';
+
+  const handleChange = (raw) => {
+    onChange(raw);
+  };
 
   const inputProps = {
     id,
     className: 'playground-input__field',
     placeholder: placeholder ?? '',
     onChange: (e) => handleChange(e.target.value),
+    value: valueToText(value, type),
   };
 
   if (type === 'number') {
-    inputProps.type = 'number';
-    inputProps.value = value === '' || value === null || value === undefined ? '' : value;
-    inputProps.inputMode = 'numeric';
-  } else {
-    inputProps.value =
-      type === 'array' ? arrayToText(value) : value === null || value === undefined ? '' : value;
+    inputProps.type = 'text';
+    inputProps.inputMode = 'decimal';
   }
 
   return (
-    <div className="playground-input">
+    <div className={'playground-input' + (error ? ' input-invalid' : '')}>
       <label className="playground-input__label" htmlFor={id}>
         {label}
       </label>
