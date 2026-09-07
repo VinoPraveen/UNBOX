@@ -1,0 +1,15 @@
+.playground-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.playground-controls__btn {
+  min-height: 44px;
+  flex: 0 0 auto;
+}
+
+.playground-controls__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

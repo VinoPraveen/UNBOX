@@ -4,7 +4,7 @@ import Navbar from './components/Navbar/Navbar.jsx';
 import Home from './pages/Home/Home.jsx';
 import Explore from './pages/Explore/Explore.jsx';
 import ConceptPage from './pages/Concept/ConceptPage.jsx';
-import PlaygroundPlaceholder from './pages/PlaygroundPlaceholder.jsx';
+import PlaygroundPage from './pages/Playground/PlaygroundPage.jsx';
 import QuizPlaceholder from './pages/QuizPlaceholder.jsx';
 import FinalCTA from './components/FinalCTA/FinalCTA.jsx';
 import Footer from './components/Footer/Footer.jsx';
@@ -53,7 +53,7 @@ export default function App() {
             path="/playground/:slug"
             element={
               <Layout>
-                <PlaygroundPlaceholder />
+                <PlaygroundPage />
               </Layout>
             }
           />

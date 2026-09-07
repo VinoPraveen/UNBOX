@@ -16,15 +16,21 @@ Tagline: **"See what's inside."**
 The platform explains concepts through interactive visualizations, animations,
 examples, playgrounds, and quizzes.
 
-- Current phase: **Phase 2.1** (Explore Concepts page — central concept library).
+- Current phase: **Phase 2.4.2** (Binary Search Playground — full interactive experiment).
+  Phase 2.4.1 built the reusable registry-driven playground system (shell + input/controls/
+  output/status components; PlaygroundPage; Stack/Queue coming-soon configs). Phase 2.4.2
+  wired the real Binary Search playground: a pure state generator, a concept wrapper that
+  renders the existing Visualization Engine, and spec-exact validation. Builds on the
+  Phase 2.3 Visualization Engine.
 
 ## Routing (since 2026-08-31)
 
 - React Router v7 (BrowserRouter) is now installed and wired in `App.jsx`.
 - **`/`** — landing page (Home + FinalCTA). **`/explore`** — Explore page.
-  **`/explore/:conceptId`** — temporary ConceptPlaceholder (real pages = Phase 2.2).
+  **`/concept/:slug`** — reusable ConceptPage (Phase 2.2). **`/playground/:slug`** —
+  registry-driven PlaygroundPage (Phase 2.4.1). **`/quiz/:slug`** — placeholder.
 - `App.jsx` uses a `Layout` (Navbar + children + Footer); `Home`/`Explore`/
-  `ConceptPlaceholder` render between Navbar and Footer. `MotionConfig
+  `ConceptPage` render between Navbar and Footer. `MotionConfig
   reducedMotion="user"` wraps the router.
 - Navbar: `Explore` is a `NavLink` (active state `.is-active` via lime underline);
   `How It Works`/`About` are plain anchors to `/#how-it-works`, `/#about`. Mobile
@@ -51,10 +57,7 @@ examples, playgrounds, and quizzes.
 - `src/components/ExploreConceptCard/` — reusable card (`motion.article` wrapper +
   `<Link>`), icon/category badge/title/description/difficulty/`Explore →`; hover
   lift (y:-6 via Framer variant label cascade), icon scale, arrow slide, border
-  brighten. Cards link to `/explore/:id`.
-- `src/pages/ConceptPlaceholder/` — temporary route page; shows concept icon/
-  category/title/description/difficulty + "Coming in Phase 2.2", back link, and a
-  "Concept not found" state for unknown ids.
+  brighten. Cards link to `/concept/:id` (resolves to the real ConceptPage, Phase 2.2).
 - Grid: 3 cols (≥1025) → 3 cols down to 1024 hover (desktop) → 2 cols ≤1024 →
   1 col ≤768. No horizontal overflow anywhere (verified 1400…320); category
   options scroll horizontally on mobile (`overflow-x:auto`, hidden scrollbar).
@@ -119,31 +122,66 @@ Note: token names are legacy (kept from light theme). Roles now:
 ```
 src/
 ├── components/
+│   ├── visualization/    Reusable visualization engine skeleton
+│   │   ├── VisualizationEngine/   orchestrator (VisualizationEngine.jsx/.css, usePlayback.js)
+│   │   ├── VisualizationControls/ generic timeline controls (Prev/Play/Next/Reset/Speed)
+│   │   ├── VisualizationProgress/ "STEP n / m" + dot progress
+│   │   └── VisualizationContainer/ consistent surface card wrapper
+│   ├── visualizations/   registry.js ({ type, Component }) + per-concept visualizers
+│   │   ├── BinarySearch/ BinarySearchVisualizer.jsx/.css (step-based, engine-controlled)
+│   │   ├── Stack/        StackVisualizer.jsx/.css (interactive, PUSH/POP/RESET)
+│   │   └── Queue/        QueueVisualizer.jsx/.css (interactive, ENQUEUE/DEQUEUE/RESET)
+│   ├── concept/          ConceptPage section components (ConceptHeader/Nav/Progress,
+│   │                     Overview/HowItWorks/Visualization sections)
+│   ├── playground/       reusable playground shell + sections (registry-driven)
+│   │   ├── PlaygroundShell/     generic outer structure: header, input, controls, output, status
+│   │   ├── PlaygroundHeader/    PLAYGROUND label + title/description + "Back to Concept"
+│   │   ├── PlaygroundInput/     config-driven input (number / array / text)
+│   │   ├── PlaygroundControls/  config-driven operation buttons (RUN/RESET, PUSH/POP, ...)
+│   │   ├── PlaygroundOutput/    labeled output area (renders viz / children)
+│   │   └── PlaygroundStatus/    Idle/Running/Success/Error (aria-live, not color-only)
 │   ├── Navbar/          Navbar.jsx + Navbar.css
 │   ├── Logo/            Logo.jsx + Logo.css  (logo image + "UNBOX" wordmark)
-│   ├── InteractiveDemo/ Stack visualization (InteractiveDemo.jsx + .css)
+│   ├── InteractiveDemo/ stack demo card — reuses <StackVisualizer> (InteractiveDemo.jsx + .css)
 │   ├── HowItWorks/      "How UNBOX Works" steps (HowItWorks.jsx + .css)
-│   ├── InteractiveShowcase/ "Concept in Motion" Binary Search viz
+│   ├── InteractiveShowcase/ "Concept in Motion" Binary Search viz (landing-only marketing)
 │   │                       (InteractiveShowcase.jsx/.css, BinarySearchVisualizer.jsx/.css,
 │   │                       binarySearchSteps.js)
 │   ├── LearningMethods/   "Learn it your way." learning-method cards
 │   │                      (LearningMethods.jsx/.css, LearningMethodCard.jsx/.css)
 │   ├── ExploreConcepts/ concept cards (ExploreConcepts.jsx + .css, ConceptCard.jsx + .css)
+│   ├── ExploreConceptCard/ Explore card → /concept/:id
+│   ├── ExploreSearch/  FilterBar/  controlled search + filter groups (Explore page)
 │   ├── FinalCTA/        "Ready to Unbox?" closing section (FinalCTA.jsx + .css)
 │   └── Footer/          minimal footer (Footer.jsx + .css)
 ├── pages/
-│   └── Home/            Home.jsx + Home.css (hero section)
+│   ├── Home/            Home.jsx + Home.css (hero section)
+│   ├── Explore/         Explore.jsx + .css (concept library)
+│   ├── Concept/         ConceptPage.jsx + .css (reusable learning page, composes sections)
+│   ├── Playground/      PlaygroundPage.jsx + .css (registry-driven playground) + placeholder states
+│   ├── QuizPlaceholder.jsx  (future phases) + Placeholder.css
+├── components/
+│   ├── playground/      reusable playground shell + sections (see below)
+│   └── ...
+├── playgrounds/         per-concept playground configs (BinarySearch/Stack/Queue)
+├── data/
+│   ├── concepts.js      Explore list (12 concepts) — do not mutate
+│   ├── concepts/        per-concept data modules + registry.js (binary-search/stack/queue)
+│   └── playgrounds/     playgroundRegistry.js (getPlayground(slug))
 ├── styles/
 │   ├── variables.css    design tokens
 │   ├── global.css       reset + base + shared (.btn, focus)
 │   └── responsive.css   breakpoint overrides
-├── App.jsx              renders <Navbar/> + <Home/> + <FinalCTA/> + <Footer/>
+├── App.jsx              BrowserRouter + Layout (Navbar + children + Footer) + routes
 └── main.jsx             root + style imports
 ```
 
 - Keep `App.jsx` thin. Reusable components. Organized CSS.
 - Semantic HTML + accessibility (real `<button>`s, accessible input, `aria` attrs).
-- No React Router currently (single page).
+- **Visualization architecture**: ConceptPage → VisualizationSection → VisualizationEngine
+  → visualizations registry → specific visualizer → reusable controls. ConceptPage must
+  NOT contain algorithm-specific rendering logic. Add a concept in 4 steps: viz component,
+  concept data file, `data/concepts/registry.js`, `visualizations/registry.js`.
 
 ## Logo asset
 
@@ -168,7 +206,9 @@ npm run lint     # oxlint
 Implemented:
 - Navbar (sticky, logo, links, gold "Get Started", mobile hamburger menu)
 - Hero (two-column: label / heading / description / search / topic chips / CTA + interactive stack demo)
-- Interactive Stack Demo ("How does a Stack work?") — PUSH / POP / RESET with Framer Motion, LIFO label, TOP indicator
+- Interactive Stack Demo ("How does a Stack work?") — rendered via `StackVisualizer`
+  (single source of truth shared with the concept page; PUSH / POP / RESET, LIFO label,
+  TOP indicator). Landing `InteractiveDemo` keeps only the `.demo` card + badge/heading.
 - Search bar (UI only — no real search yet; placeholder "What do you want to unbox?")
 - Topic chips: Arrays · Recursion · HTTP · Binary Search (fill the query, no real search)
 - HowItWorks section ("How UNBOX Works") — 3 steps (Discover / Unbox / Understand) with
@@ -582,7 +622,7 @@ Out of scope (later phases):
   Delete `ConceptPlaceholder` (replaced by the real page). `ExploreConceptCard`
   now links to `/concept/:id`.
 - **Routes added** in `App.jsx`: `/concept/:slug` (ConceptPage),
-  `/playground/:slug` (PlaygroundPlaceholder), `/quiz/:slug` (QuizPlaceholder).
+  `/playground/:slug` (PlaygroundPage in Phase 2.4.1), `/quiz/:slug` (QuizPlaceholder).
   Removed `/explore/:conceptId`. Shared `Layout` keeps Navbar+Footer.
 - **Data layer**:
   - `src/data/concepts/` now holds per-concept modules + a registry.
@@ -626,9 +666,9 @@ Out of scope (later phases):
 - **Preview teasers**: data-driven `PreviewSection` in ConceptPage — Practice
   ("Ready to try it yourself?" → `/playground/:slug` "Open Playground") +
   Challenge ("Think you've got it?" → `/quiz/:slug` "Take the Challenge").
-- **Placeholders**: `PlaygroundPlaceholder.jsx` + `QuizPlaceholder.jsx` share
-  `pages/Placeholder.css`; each reads slug, shows concept title, Back to Concept
-  → `/concept/:slug`. No Playground/Quiz logic (later phases).
+- **Placeholders**: `QuizPlaceholder.jsx` uses `pages/Placeholder.css`; reads slug,
+  shows concept title, Back to Concept → `/concept/:slug`. No Quiz logic (later phases).
+  (The old `PlaygroundPlaceholder.jsx` was replaced by the real PlaygroundPage in Phase 2.4.1.)
 - **Styling**: per-component BEM CSS with existing tokens, sticky nav clearance
   via global `section[id] scroll-margin-top`. Two-column viz grid (1.4fr/1fr)
   → single ≤1024. `MotionConfig reducedMotion="user"` + global reduced-motion
@@ -652,3 +692,234 @@ Out of scope (later phases):
   exceed the document height so `scrollIntoView` can't reach lower sections —
   use a realistic viewport (1000px) for nav-scroll verification. `NodeList.every`
   may be flaky through CDP `returnByValue`; wrap node lists in `Array.from(...)`.
+
+### 2026-09-01 — Phase 2.3: Reusable Visualization Engine
+
+- **Architecture decoupled**: ConceptPage/VisualizationSection no longer know how
+  individual visualizations work. Flow is now **ConceptData → ConceptPage →
+  VisualizationEngine → visualization registry → specific visualizer →
+  reusable controls**. ConceptPage just composes sections; the engine resolves and
+  renders the right visualizer + control scheme from `concept.visualization`.
+- **Target structure created** under `src/components/visualization/`:
+  - `VisualizationEngine/VisualizationEngine.jsx` — orchestrator. Reads
+    `getVisualization(slug)`; if null → `ComingSoon` ("Visualization coming soon."
+    + "Back to Explore", no crash). Branch on `type`: `'interactive'` renders the
+    visualizer self-contained (its own concept controls); `'step-based'` runs
+    `StepBasedEngine` (timeline: step state, snapshot, header + `VisualizationProgress`,
+    generic `VisualizationControls`, the shared `usePlayback` hook).
+  - `VisualizationControls/VisualizationControls.jsx` — generic timeline controls:
+    Previous / Play·Pause / Next / Reset + Speed (0.5x 1x 1.5x 2x). Previous disabled
+    at step 1, Next disabled at final. Real buttons + aria-labels, wraps on mobile.
+  - `VisualizationProgress/VisualizationProgress.jsx` — `STEP n / m` pill (cyan,
+    aria-live) + dot progress (violet done / violet current), reusable.
+  - `VisualizationContainer/VisualizationContainer.jsx` — consistent surface card
+    (border, radius, padding, `--color-white`), no logic.
+  - `VisualizationEngine/usePlayback.js` — centralized automatic playback. Uses a
+    single `setInterval` via functional `setStep` updater (no stale closures), a ref
+    guards play state, speed changes restart the timer in place (no concurrent
+    timers), auto-stops at the final step, and unmount cleanup via
+    `useEffect(() => clearTimer)`. No per-visualizer timers.
+- **Visualizations registry** (`src/components/visualizations/registry.js`): each
+  entry is `{ type: 'step-based'|'interactive', Component }`. `getVisualization(slug)`
+  returns entry or null. **Add a future concept in 4 steps**: (1) viz component,
+  (2) concept data file, (3) map it in `data/concepts/registry.js`, (4) map it in
+  `visualizations/registry.js`. Nothing else to change.
+- **`visualizations/BinarySearch/`** — migrated into the engine: now presentational
+  (receives `config`/`complexity`/`snapshot`), its own prev/next/progress/controls
+  removed (handled by the engine). Board + explanation panel + complexity + found
+  state preserved, same educational behavior (START → CHECK 40 → NARROW 50·60·70 →
+  FOUND 60 @ idx 5).
+- **`visualizations/Stack/StackVisualizer.jsx`** (NEW, interactive type): initial
+  `[10,20,30]`, TOP lime pointer, PUSH/POP/RESET concept controls (Push disabled full,
+  Pop disabled empty), LIFO caption, size pill, block enter/exit animations. Reads
+  `concept?.initialValues`.
+- **`visualizations/Queue/QueueVisualizer.jsx`** (NEW, interactive type): initial
+  `[10,20,30]`, FRONT/REAR labels, ENQUEUE/DEQUEUE/RESET, FIFO caption, ENQUEUE →
+  enter from rear (x:+40), DEQUEUE → leave from front (x:-40), `mode="popLayout"`.
+  Self-contained CSS (`qviz__block` base + `--front`/`--rear` ring) — does not rely on
+  Stack's CSS.
+- **Stack single source of truth**: landing `InteractiveDemo` no longer has any stack
+  logic — it now renders `<StackVisualizer concept={{initialValues:[10,20,30]}} />`
+  inside its `.demo` card (kept `Demo` badge / heading). One Stack implementation
+  shared by landing + concept page. (`InteractiveShowcase` keeps its own Binary Search
+  on the landing page — that's a separate marketing section per "don't redesign the
+  landing page"; Stack reuse was the required unification.)
+- **Concept data**: new `src/data/concepts/{stack,queue}.js` (slug/title/category/
+  difficulty/estimatedTime/description/Icon/accent/tint/visualization/blurb/overview/
+  howItWorks). `data/concepts/registry.js` now maps `binary-search`/`stack`/`queue`.
+- **OverviewSection bugfix**: it was binary-search-specific (assumed `overview.array`)
+  and crashed Stack/Queue with `TypeError: array.join`. Now `array`/target visual is
+  rendered only when `overview.array` exists → Stack/Queue render body + heading only.
+  Binary Search keeps its array+target visual unchanged.
+- **NO new deps.** `npm run lint` ✓ (clean), `npm run build` ✓ (2293 modules;
+  `index-BG7fNOSb.js` 424.15 kB gzip 130.65, `index-C7t08uHe.css` 59.00 kB gzip 8.29).
+- **Verified via headless Edge CDP + self-hosted Vite — 41/41 main + 4/4 coming-soon +
+  11/11 a11y/reduced-motion**: landing stack demo (3 blocks, LIFO, Push/Pop),
+  binary-search engine (STEP 1/4 → Next → STEP 4 found cell, Next disabled at final,
+  Reset → STEP 1, Playback auto-stops at end, 2x speed advances, explanation
+  updates), stack (3 blocks, TOP, LIFO, Push/Pop, no generic controls/progress),
+  queue (3 blocks, FRONT/REAR, FIFO, Enqueue/Dequeue, self-contained block styling),
+  `/concept/arrays` → "Concept not found" (no crash), coming-soon path manually
+  exercised by temporarily removing queue from the registry → "Visualization coming
+  soon." + "Back to Explore" + header intact + no console errors, Explore still 12
+  cards, no horizontal overflow at 1400/1024/768/390/320, keyboard Enter/Space
+  activate Next/Reset, all controls are real buttons with aria-labels, Previous
+  disabled at step 1, speed 1x default, aria-live on status + progress, reduced
+  motion forces `0.01ms` transitions, no browser console errors.
+- **Test-harness lesson**: getComputedStyle returns reduced-motion duration as
+  `1e-05s` (0.01ms in seconds) — don't compare it to a `ms`-literal string; compare
+  numerically. Also, exiting Framer items stay in the DOM during their exit
+  animation, so a count read must `sleep(~700ms)` after Pop/Dequeue before
+  asserting the final count.
+
+### 2026-09-01 — Phase 2.4.1: Playground Architecture
+
+- **Reusable playground system** at `/playground/:slug`, driven entirely by a
+  playground registry. NOT the complete Binary Search/Stack/Queue playgrounds —
+  this phase builds the pluggable foundation Phase 2.4.2 fills in. Landing,
+  Explore, Concept page, Visualization Engine, and design system untouched.
+- **Architecture**: URL → PlaygroundPage → playground registry →
+  playground config → generic PlaygroundShell → concept playground →
+  (future) existing Visualization Engine. PlaygroundPage has **no
+  algorithm-specific logic**.
+- **Registry** `src/data/playgrounds/playgroundRegistry.js` — `getPlayground(slug)`
+  returning config or null (no if/else chains, no algorithm logic). Delete old
+  `pages/PlaygroundPlaceholder.jsx`.
+- **Playground configs** (`src/playgrounds/{BinarySearch,Stack,Queue}/*.js`):
+  each defines `slug/title/description/experience/conceptSlug/inputs/operations/
+  validate`. `experience`: `'standby'` (binary-search — shell renders + validates,
+  but no RUN execution yet) vs `'coming-soon'` (stack/queue — page shows
+  "Playground coming soon." + Back to Concept). Binary Search config pre-declares
+  its array + target inputs, RUN/RESET operations, and `validate()` (non-empty,
+  all numbers, sorted ascending, target finite).
+- **Reusable components** (`components/playground/`, all presentational,
+  config-driven):
+  - `PlaygroundShell` — generic outer structure; owns generic state (values,
+    errors, status), builds defaults from `config.inputs`, delegates `run`/
+    `validate` to config; composes Header → Input → Controls → Output → Status.
+    Two-column desktop grid (input+controls | viz+status) → single column ≤1024
+    (INPUT → CONTROLS → OUTPUT → STATUS via `order:3` on the right panel).
+  - `PlaygroundHeader` — `PLAYGROUND` label + title/description (from config) +
+    "Back to Concept → `/concept/:slug`".
+  - `PlaygroundInput` — type-agnostic foundation: `number` / `array` (comma
+    textarea → parse) / `text`; labelled (htmlFor), help text, inline error, clear
+    focus-visible ring. Future types (select/toggle/slider) plug in as cases.
+  - `PlaygroundControls` — maps `operations` to real buttons (variant gold/navy/
+    ghost via existing `.btn`), per-op `disabled`, aria-labels. No hardcoded
+    buttons.
+  - `PlaygroundOutput` — labelled frame (**VISUALIZATION**) around children;
+    capable of rendering the existing Visualization Engine (future), no duplicated
+    viz logic.
+  - `PlaygroundStatus` — `idle`/`running`/`success`/`error` with distinct
+    icons + colored-but-not-color-only states, `role="status" aria-live="polite"`.
+- **PlaygroundPage** (`pages/Playground/`) — reads slug → registry; null config
+  → "Playground not found." + Back to Explore (no crash); `coming-soon` → message
+  + Back to Concept; else PlaygroundShell. Concept data resolved from concept
+  registry for future viz wiring.
+- **Routing**: `App.jsx` now points `/playground/:slug` at PlaygroundPage.
+  Concept "Open Playground" buttons already navigate to `/playground/:slug`
+  (unchanged, now resolves to the real page).
+- **NO new deps.** `npm run lint` ✓ (clean), `npm run build` ✓ (2310 modules;
+  `index-6HZIrZ01.js` 432.18 kB gzip 133.04, `index-2gTt5NTI.css` 65.14 kB gzip 9.06).
+- **Verified via headless Edge CDP + self-hosted Vite (`verify-playground.mjs`,
+  `verify-landing.mjs` in temp) — 32/32 + 5/5 PASS**: explore (12 cards),
+  concept → "Open Playground" → `/playground/binary-search`, binary-search shell
+  (h1/PLAYGROUND label/Back to Concept/array+target inputs/Run+Reset/Idle status),
+  RUN(valid) → "Configuration ready.", unsorted array → "Please enter a valid
+  input." + "Array must be sorted in ascending order.", Reset restores array +
+  Idle, stack+queue → "Playground coming soon.", invalid slug → "Playground not
+  found." + Back to Explore, no horizontal overflow at 1440/1024/768/390/320,
+  mobile single column, Visualization Engine still works on /concept/binary-search,
+  landing `/` + `/quiz/:slug` + `/concept/stack` all render, no browser console
+  errors on any route.
+- **Test-harness lesson**: Node ≥22 native `WebSocket` client (use `ws.onmessage`,
+  NOT `ws.on('message')`); import `vite` from a `file://` URL path on Windows
+  (`C:` scheme throws `ERR_UNSUPPORTED_ESM_URL_SCHEME`). `click()` → React batches;
+  dispatch `input` via the `HTMLTextAreaElement.prototype` value setter then wait
+  before re-reading.
+
+### 2026-09-01 — Phase 2.4.2: Binary Search Playground (full interactive experiment)
+
+- **`src/playgrounds/BinarySearch/binarySearchAlgorithm.js`** (NEW) — pure state
+  generator `generateBinarySearchStates(array, target)`. Builds pedagogical states:
+  a "Start wide." initial snapshot + one push per comparison (move left/right with a
+  `gather(range)` status + heading/detail), then a terminal `found` OR `notFound`
+  snapshot. Every state carries the Phase 2.3 snapshot interface (`key/low/high/mid/
+  eliminated/found/notFound/status/badge/heading/detail`) plus `comparisonCount`.
+  Guards: `midValue < target` → discard the left half (eliminate left..mid, left=mid+1),
+  else discard right; on an emptied range emits a terminal not-found with `low:-1,
+  high:-1`, all cells eliminated, and a `✕ ... is not present` status. Empty/zero-length
+  array returns `[]` (never crashes).
+- **`BinarySearchPlayground.jsx`** (NEW) — the concept wrapper. `experiment === null`
+  → idle "Ready to experiment." empty state (Search icon + copy). Otherwise builds a
+  dynamic `concept` object (`visualization:'binary-search'`, `title`, `complexity`
+  `{time:'O(log n)',space:'O(1)'}`, `visualizationConfig:{array,target}`,
+  `visualizationSteps: experiment.states`) and renders
+  `<VisualizationEngine key={experiment.runId} concept={concept} />`. The `key`
+  (`runId`, set by the config's `run()` via `Date.now()`) forces a fresh engine
+  instance per run so step state never leaks across runs. **100% reuses the Phase 2.3
+  engine** — controls, progress, playback, speed all come from the engine; the wrapper
+  holds no algorithm logic. + `BinarySearchPlayground.css` for the idle state.
+- **`binarySearchPlayground.js`** (UPDATED) — `experience:'full'`; `Component:
+  BinarySearchPlayground`; `run(values,{setErrors,setStatus,setExperiment})` runs
+  `validate`, on failure sets field errors + error status ("Please fix the input before
+  running." + first message); on success generates states and returns a `{runId,array,
+  target,states}` experiment with success ("Target found." / `${target} matches the
+  array after N comparisons.`) or notice ("Target not found." / `${target} is not
+  present...`) status. `onReset` keeps current input values (nukes experiment, restores
+  idle "Ready to experiment."). Spec-exact validation messages: empty → "Please enter
+  at least one number."; invalid → "Please enter only valid numbers."; unsorted →
+  "Binary Search requires a sorted array."; target non-finite → "Please enter a valid
+  target."
+- **`PlaygroundShell.jsx`** (UPDATED) — owns an opaque `experiment` state object;
+  delegates `run`/`onReset` to `config`; `handleInputChange` clears the experiment and
+  sets an INVALIDATED idle status ("Input changed. Run the experiment again.") whenever
+  an experiment exists (else back to READY); renders `config.Component` in the output
+  frame with `experiment`+`values`. Default fallback (no `config.run`) still validates +
+  shows the standby copy. Empty experiment (before/after reset) now renders
+  `config.Component`'s idle state instead of a raw div.
+- **`BinarySearchVisualizer.jsx` + `.css`** (EXTENDED, non-breaking) — dynamic
+  `gridTemplateColumns` via inline style (5 cells → 8 cols, 7 → 6, 10+ → 4) so arbitrary
+  array lengths render cleanly; `.cviz__array--dense` modifier for >12 elements (smaller
+  cells + ellipsis overflow safety); `.cviz__facts` row (Comparisons + Range) rendered
+  only when `snapshot.comparisonCount !== undefined`; `.cviz__not-found` / `cviz__found`
+  chips; terminal not-found uses `low:-1/high:-1` so no LOW/MID/HIGH pointers render
+  (guarded). Concept page snapshots (no comparisonCount/notFound) render exactly as
+  before — unchanged behavior.
+- **`PlaygroundStatus.jsx` + `.css`** (UPDATED) — added `notice` kind (SearchX icon,
+  neutral muted dashed styling) for NOT FOUND results; idle/running/success/error
+  unchanged.
+- **`PlaygroundControls`** visibility detail: the generic shell Run/Reset buttons and
+  the engine's VisualizationControls coexist; both carry distinct aria-labels —
+  the engine's reset is "Reset to the first step", the shell's is "Reset the experiment".
+- **NO new deps.** `npm run lint` ✓ (clean), `npm run build` ✓ (2313 modules;
+  `index-JHRby4XL.js` 437.10 kB gzip 134.37, `index-gD6IbpZN.css` 66.73 kB gzip 9.26).
+- **Verified via headless Edge CDP + self-hosted Vite (`verify-phase242.mjs` in temp,
+  Vite on :5201) — 45/45 PASS** covering all 48 spec scenarios: shell (h1 / PLAYGROUND
+  label / Back to Concept / array textarea / target input / Run+Reset / idle status+viz),
+  T1 found (STEP 1, goEnd→Found 60 chip, Comparisons, O(log n)/O(1), "Target found."),
+  prev/next advance + return to STEP 1, T16 input-invalidated status, T2 not-found chip
+  "Not found 25" + "Target not found.", T10 reset preserves target 25 + restores idle +
+  hides chip, T3 unsorted error "Binary Search requires a sorted array." + "Please fix
+  the input", T4 invalid numbers, T5 empty array, T6 invalid target, T7 negatives
+  (Found -20), T8 duplicates (Found 20), T9 decimals (Found 3.5), T13 play auto-advances +
+  **auto-stops at final** (play button returns to "Play"), T15 speed 2x active, no
+  horizontal overflow at 1440/1024/768/390/320, mobile single-column grid, landing /
+  explore / concept render, concept Visualization Engine still works, stack+queue still
+  coming-soon, no browser console errors.
+- **Test-harness lessons (important)**: ① React 19 controlled **number inputs** do NOT
+  reliably commit a change driven by the `HTMLInputElement.prototype.value` setter +
+  dispatched Event/InputEvent — React's value tracker re-renders the DOM value back to
+  the previous controlled value, so the injected value is silently lost (read back "60"
+  after setting "25"). The **reliable method is CDP `Input.insertText`**: `el.focus()` +
+  `el.select()` then send `Input.insertText` — that fires a real user-edit `beforeinput/
+  input` that React handles, and it works consistently for both textarea and number. ②
+  The found/not-found chips only render on the **terminal** snapshot (step 1 is the
+  "Start wide." initial state), so tests must advance to the last step (click Next until
+  `disabled`) before asserting the chip text. ③ The engine Play button is **never
+  disabled** — auto-stop means `isPlaying` flips false at the end, so assert "auto-stops
+  at final" by checking the play button text returns to "Play" (no "Pause"). ④ When there
+  are two Reset buttons (shell vs engine), disambiguate by exact aria-label (engine:
+  "Reset to the first step"). ⑤ A transient CDP `Page.navigate`/target connect drop can
+  flake the whole run (all shell checks fail) — re-running is sufficient to recover.
+
