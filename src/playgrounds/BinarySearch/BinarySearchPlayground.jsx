@@ -28,5 +28,12 @@ export default function BinarySearchPlayground({ experiment }) {
     visualizationSteps: experiment.states,
   };
 
-  return <VisualizationEngine key={experiment.runId} concept={concept} />;
+  return (
+    <VisualizationEngine
+      key={experiment.runId}
+      concept={concept}
+      embedded
+      autoPlay
+    />
+  );
 }

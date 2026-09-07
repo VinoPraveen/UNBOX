@@ -7,9 +7,11 @@
   margin: 0 auto;
   padding: 0 var(--space-6);
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
   gap: var(--space-6);
   align-items: start;
+  grid-template-areas:
+    'panel-left panel-right';
 }
 
 .playground__panel {
@@ -17,6 +19,14 @@
   flex-direction: column;
   gap: var(--space-6);
   min-width: 0;
+}
+
+.playground__panel--left {
+  grid-area: panel-left;
+}
+
+.playground__panel--right {
+  grid-area: panel-right;
 }
 
 .playground__section {
@@ -75,9 +85,8 @@
 @media (max-width: 1024px) {
   .playground__grid {
     grid-template-columns: 1fr;
-  }
-
-  .playground__panel--right {
-    order: 3;
+    grid-template-areas:
+      'panel-left'
+      'panel-right';
   }
 }
