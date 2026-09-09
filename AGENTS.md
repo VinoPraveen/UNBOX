@@ -16,12 +16,16 @@ Tagline: **"See what's inside."**
 The platform explains concepts through interactive visualizations, animations,
 examples, playgrounds, and quizzes.
 
-- Current phase: **Phase 2.4.2** (Binary Search Playground — full interactive experiment).
-  Phase 2.4.1 built the reusable registry-driven playground system (shell + input/controls/
-  output/status components; PlaygroundPage; Stack/Queue coming-soon configs). Phase 2.4.2
-  wired the real Binary Search playground: a pure state generator, a concept wrapper that
-  renders the existing Visualization Engine, and spec-exact validation. Builds on the
-  Phase 2.3 Visualization Engine.
+- Current phase: **Phase 5 — Extended Algorithm Set** (Linear Search, Binary Search, Bubble Sort,
+  Selection Sort, Insertion Sort, **Merge Sort, Quick Sort**). Phase 2.4.2 built the single Binary
+  Search playground (pure state generator + concept wrapper + Validation Engine). Phase 4 generalizes
+  that into a reusable pipeline: shared `src/algorithms/` step generators → standardized
+  snapshot format → one shared `ArrayVisualization` → the existing Visualization Engine. Phase 5
+  adds Merge Sort + Quick Sort as distinct visualizers (pipeline chips, range pills, divider cut
+  markers, per-kind pointer pills), a generalized `createSortingPlayground` (per-algorithm stat
+  order), and a dot→bar progress mode for long timelines. Seven algorithms run on
+  `/playground/:slug` with random arrays, preset arrays, live validation, auto-play, and full
+  step timelines (5 sort + 2 search playgrounds).
 
 ## Routing (since 2026-08-31)
 
@@ -125,9 +129,15 @@ src/
 │   ├── visualization/    Reusable visualization engine skeleton
 │   │   ├── VisualizationEngine/   orchestrator (VisualizationEngine.jsx/.css, usePlayback.js)
 │   │   ├── VisualizationControls/ generic timeline controls (Prev/Play/Next/Reset/Speed)
-│   │   ├── VisualizationProgress/ "STEP n / m" + dot progress
+│   │   ├── VisualizationProgress/ "STEP n / m" pill + dot progress (dot→bar past 26 steps)
 │   │   └── VisualizationContainer/ consistent surface card wrapper
 │   ├── visualizations/   registry.js ({ type, Component }) + per-concept visualizers
+│   │   ├── Array/        ArrayVisualization.jsx/.css (shared search/sort board: pointer pills,
+│   │   │                 state-colored cells, status, facts, explanation + terminal chips)
+│   │   ├── MergeSort/    MergeSortVisualizer.jsx/.css (DIVIDE/MERGE chips, range pill,
+│   │   │                 divider cut markers, left/right/write/range pointer pills)
+│   │   ├── QuickSort/    QuickSortVisualizer.jsx/.css (PIVOT/PARTITION/PLACE chips, range pill,
+│   │   │                 divider cut markers, pivot/scan/part pointer pills)
 │   │   ├── BinarySearch/ BinarySearchVisualizer.jsx/.css (step-based, engine-controlled)
 │   │   ├── Stack/        StackVisualizer.jsx/.css (interactive, PUSH/POP/RESET)
 │   │   └── Queue/        QueueVisualizer.jsx/.css (interactive, ENQUEUE/DEQUEUE/RESET)
@@ -136,10 +146,13 @@ src/
 │   ├── playground/       reusable playground shell + sections (registry-driven)
 │   │   ├── PlaygroundShell/     generic outer structure: header, input, controls, output, status
 │   │   ├── PlaygroundHeader/    PLAYGROUND label + title/description + "Back to Concept"
-│   │   ├── PlaygroundInput/     config-driven input (number / array / text)
+│   │   ├── PlaygroundInput/     config-driven input (number / array / text, presets, randomize)
 │   │   ├── PlaygroundControls/  config-driven operation buttons (RUN/RESET, PUSH/POP, ...)
 │   │   ├── PlaygroundOutput/    labeled output area (renders viz / children)
-│   │   └── PlaygroundStatus/    Idle/Running/Success/Error (aria-live, not color-only)
+│   │   ├── PlaygroundStatus/    Idle/Running/Success/Error (aria-live, not color-only)
+│   │   ├── AlgorithmPlayground/ factory wrapping an algorithm's steps → VisualizationEngine
+│   │   ├── AlgorithmInfo/       algorithm description + complexity rows
+│   │   └── AlgorithmSwitcher/   grouped pill links between the algorithm playgrounds
 │   ├── Navbar/          Navbar.jsx + Navbar.css
 │   ├── Logo/            Logo.jsx + Logo.css  (logo image + "UNBOX" wordmark)
 │   ├── InteractiveDemo/ stack demo card — reuses <StackVisualizer> (InteractiveDemo.jsx + .css)
@@ -992,4 +1005,166 @@ Out of scope (later phases):
   explicit emulation (1440); the STEP pill text includes a trailing "· STEP n / m" so compare
   with `startsWith('STEP 1')`; a disabled Run button swallows clicks — invalid-input assertions
   rely on the live inline error text now.
+
+### 2026-09-09 — Phase 4: Multi-Algorithm Playground System (Linear Search + 3 sorts)
+
+- **Goal**: generalize the single Binary Search playground into a reusable pipeline. Added
+  Linear Search, Bubble Sort, Selection Sort, Insertion Sort — all on `/playground/:slug`,
+  reusing the exact Phase 2.3 engine (step timeline, Play/Prev/Next/Reset/Speed, progress
+  pill + dots) and a new shared array visualizer. Binary Search reused **as-is** (its own
+  generator + visualizer) with only an added random/preset UI. Landing, Explore, ConceptPage,
+  design tokens, stack/queue playgrounds untouched.
+- **New `src/algorithms/` layer** (pure step generators, framework-free, seed each engine
+  render): `utils.js` (`gather`, `noun` — pluralization, `randomUniqueArray(count,min,max)`),
+  `registry.js` (`getAlgorithm(slug)`, `getAlgorithmGroups()` = Searching→[linear-search,
+  binary-search], Sorting→[bubble-sort, selection-sort, insertion-sort]; each algorithm has
+  `metadata` + `generateSteps(array)`), and one generator per algorithm under
+  `searching/` + `sorting/`. `searching/binarySearch.js` only **re-exports**
+  `generateBinarySearchStates` from `src/playgrounds/BinarySearch/binarySearchAlgorithm.js`
+  plus metadata — no duplicated algorithm. Empty/zero-length input → `[]` (never crashes).
+- **Standardized snapshot format** (each generator emits these; shared visualizer consumes):
+  `{ key, array, elements: [{ value, state }], pointers: [{ index, label, kind }], facts,
+  status, badge, heading, detail, found?, notFound?, foundIndex?, sortedFlag? }`. Element
+  states: `default/active/comparing/current/minimum/sorted/eliminated/found/swapping/
+  shifting`. Pointer kinds: `scan/min/key`. Facts are the per-algorithm real counters
+  (e.g. bubble `{Comparisons, Swaps, Passes}`, selection `{Comparisons, Swaps}`).
+- **`components/visualizations/Array/ArrayVisualization.jsx` (+.css)**: one shared step-based
+  visualizer for the 4 new algorithms. Board: pointer-pill row above the cells (min-width +
+  `--huge` scroll container past 16 cells, `--dense` past 12), cells colored by element
+  state, `aria-label` per cell (value + state words), status line (`aria-live`, good/missing
+  modifiers), facts row, explanation panel with animated copy + terminal chips (`Found · index
+  n` / `Not found` / `Array sorted`), complexity block (searches show Time/Space; sorts show
+  Best/Average/Worst/Space). Search snapshots found on a value render the cell check; not a
+  special sort-specific component.
+- **`components/playground/AlgorithmPlayground/`** (`AlgorithmPlayground.jsx/.css`):
+  `createAlgorithmPlayground(slug)` factory — idle state ("Ready to experiment." + icon +
+  copy) or builds a dynamic `concept` (visualization `'array'`, title, complexity, steps) and
+  renders `<VisualizationEngine key={runId} concept={concept} embedded autoPlay />`. No
+  algorithm logic; `runId` from config keeps engines fresh per run.
+- **`components/playground/AlgorithmInfo/`** (description + 2 or 4 complexity rows) and
+  **`AlgorithmSwitcher/`** (grouped pill links Switching between all 5 playgrounds via
+  Router `Link`, active-state highlight) — both rendered inside PlaygroundShell's left panel.
+- **Playground configs**: `playgrounds/LinearSearch/linearSearchPlayground.js` (full, own
+  wrapper `createAlgorithmPlayground`), and a shared factory
+  `playgrounds/sortingPlayground.js` → `createSortingPlayground(defaultArray, presets)` used by
+  `BubbleSort/` `SelectionSort/` `InsertionSort/` configs (`validate` = array of finite numbers
+  (≤30), `Guidance` statuses: results singular/plural, comparison counts in detail). Each
+  config's array field declares `presets` (3 named options) + `randomize` (calls
+  `randomUniqueArray`; Binary Search randomizes sorted). Run/Reset semantics identical to
+  Binary Search (live-validate, `runId`, status success/notice/error).
+- **`PlaygroundInput`** (modified): array field keeps raw text; new `randomize` button
+  ("Generate Random Array") + preset `<select aria-label="Array presets">` (option value 0..)
+  only rendered when the field declares them; `PlaygroundShell` gains `onRandom`/`onPreset`
+  wiring.
+- **Concept data**: added `linearSearch.js`/`bubbleSort.js`/`selectionSort.js`/
+  `insertionSort.js` (`data/concepts/`) reused the algorithm `generateSteps` for
+  `visualizationSteps` (concept pages get the same steps manually, no auto-play) + mapped in
+  `data/concepts/registry.js`; `visualizations/registry.js` maps all four to the single
+  `Array` visualizer; `playgroundRegistry.js` maps the four new `/playground/:slug` configs.
+- **NO new deps.** `npm run lint` ✓, `npm run build` ✓ (2337 modules; `index-BQ04qihC.js`
+  471.29 kB gzip 142.72, `index-Bj3Qzf9H.css` 76.78 kB gzip 10.37).
+- **Verification**: Node generator unit test (`test-algorithms.mjs`, temp) **43/43 PASS**
+  (found/not-found/empty/dupes/negatives + per-algo stats for the exact UI arrays). Headless
+  Edge CDP harness (`verify-phase4.mjs`, temp; self-hosted Vite :5231, CDP :9330) **144/144
+  PASS, 0 console errors** — all 5 playground flows (title/label/back-link/idle/5-link switcher/
+  grouped labels/info/random/preset/validation gates/Run/auto-play/STEP pill/terminal chip/
+  final cells/real stats/prev+next/reset→idle/keeps-values/overflow @1440+390), linear
+  not-found + 5-comparison detail, negative+duplicate searches, invalid-number error, bubble
+  duplicates, binary regression (found/not-found chips, LOW/MID/HIGH ≥3, facts, prev/next,
+  unsorted error), 3 new concept pages, landing/explore/stack/invalid-slug, no console errors.
+- **Test-harness lessons**: ① programmatic Vite `createServer({ server: { port, strictPort,
+  host } })` — top-level `port`/`strictPort` are ignored (Vite falls back to 5173+ and Edge
+  gets connection-refused). ② AnimatePresence `mode="wait"` mounts the next explanation copy
+  only after the previous 0.25s exit — reading a terminal chip right after `goToEnd` fails;
+  poll (≤3.6s) for the element instead. ③ `.aviz__cell-value` returns strings — normalize the
+  expected array with `.map(String)` before `JSON.stringify` comparison. ④ "prev disabled at
+  start" must be asserted at step 1 (before `goToEnd`), not after. ⑤ Bubble `[5,2,8,1,9]` =
+  10 comparisons / **4** swaps / 4 passes and Selection `[64,25,12,22,11]` = 10 comparisons /
+  **3** swaps — trace the generator, don't guess. ⑥ previous sessions' "temp" harnesses:
+  `test-algorithms.mjs` (node/gen) + `verify-phase4.mjs` (browser) are the current ones.
+
+### 2026-09-09 — Phase 5: Merge Sort + Quick Sort (extended algorithm set)
+
+- **Goal**: add Merge Sort and Quick Sort as *distinct* step-based visualizations and playgrounds
+  (`/playground/merge-sort`, `/playground/quick-sort`, `/concept/merge-sort`, `/concept/quick-sort`)
+  on the Phase 4 pipeline. The 5 existing algorithms (Linear/Binary Search, Bubble/Selection/
+  Insertion Sort) stay behavior-identical — verified against the Phase 4 expectations (bubble
+  `[5,2,8,1,9]` still 10 comparisons / 4 swaps / 4 passes). Landing, Explore, and Stack/Queue
+  playgrounds untouched.
+- **New generators** `src/algorithms/sorting/{merge,quick}Sort.js` (pure ESM, same snapshot
+  contract as Phase 4: `{ key, array, elements[{value,state}], pointers[{index,label,kind}], facts,
+  status, badge, heading, detail, found?, sortedFlag? }` — the new sorts add `phase`, `region`,
+  `dividers`, `pivotIndex` fields).
+  - **Merge**: top-down recursive mergesort; each divide emits `phase:'divide'` splits with
+    `region {lo,mid,hi}` + `dividers [mid]`; each merge emits `phase:'merge'` with full index/spans,
+    LEFT/RIGHT/WRITE pointers, and a terminal `phase:'complete'`. **Critical correctness detail**:
+    the merge is *run-buffered* (`temp = arr.slice(lo, hi+1)`, `leftLen = mid-lo+1`, read indices
+    `i`/`j` over temp, write index `k` over arr) — an in-place single-array merge corrupts runs
+    because the write pointer clobbers unread values. Facts: `{Comparisons, Merges, Divisions,
+    ArrayWrites}`. Verified: `[38,27,43,3,9,82,10]` → 14 comparisons, 6 merges, 6 divisions
+    (divisions = n−1), 20 array writes, final sorted; `[5,2,8,1,9]` → 8/4/4/12.
+  - **Quick**: Lomuto partition, pivot = `arr[hi]`. Intro → choose pivot → partition (pivot/scan/
+    part pointers green, cyan, violet) → place (swaps the partition index −1 into place, divider at
+    `i`, PIVOT cut marker, `phase:'place'`) → complete. Facts: `{Comparisons, Swaps, Partitions}`.
+    Verified: `[10,7,8,9,1,5]` → 11/5/4; `[5,2,8,1,9]` → 9/3/3. Two fixed bugs: `compareIndex`
+    not destructured in `spanStates`, and a copy typo ("Merge…" → "Quick sort treats…").
+- **Shared playground factory generalised** (`src/playgrounds/sortingPlayground.js`):
+  `createSortingPlayground({ slug, title, description, algorithmSlug, defaultArray, presets, statOrder })`
+  — new `DEFAULT_STAT_ORDER` (Comparisons/Swaps/Passes) keeps the 3 existing sorts' status
+  messages unchanged; Merge/Quick pass per-algorithm stat orders (Comparisons/Merges/Divisions/
+  ArrayWrites and Comparisons/Swaps/Partitions). Status detail is built from `statOrder` +
+  `last.facts`, skipping any missing keys.
+- **Distinct visualizers** (don't reuse the plain Array visualizer — these teach *structure*):
+  - `components/visualizations/MergeSort/MergeSortVisualizer.jsx/.css` — import the shared
+    `../Array/ArrayVisualization.css` base (stage, cells, facts, explanation, complexity) and add:
+    pipeline chips `mrsv__phase` (DIVIDE ∣ MERGE, active chip highlighted), range pill
+    (`Split [lo–mid] + [mid+1–hi]` on divides, `Merge [lo..hi]` on merges), divider **cut markers**
+    `.aviz__cell--cut` (dashed lime right border at the `mid` cell) + `mrsv__tags` row (SPLIT /
+    MERGE), left-run/right-run/comparing/placed/merged cell states, LEFT (violet) / RIGHT (cyan) /
+    WRITE (lime) pointer pills.
+  - `components/visualizations/QuickSort/QuickSortVisualizer.jsx/.css` — pipeline chips `qksv__phase`
+    (PIVOT ∣ PARTITION ∣ PLACE), range pill (`Span [lo–hi] · pivot @ i`, `Pivot @ i · left [lo–i−1] ·
+    right [i+1–hi]` on place), cut marker for the placed pivot + PIVOT tag, in-range/partitioned/
+    pivot/comparing/swapping cell states, PIVOT (lime) / SCAN (cyan) / PART (violet) pointer pills.
+  - Both wrap the same `.aviz` board so the engine header, controls, and layout are untouched.
+- **Playground + concept configs**: `playgrounds/{MergeSort,QuickSort}/{merge,quick}SortPlayground.js`
+  (defaults `[38,27,43,3,9,82,10]` and `[10,7,8,9,1,5]`, sharing the same presets/randomize/
+  validate ≤30-finite-numbers as Phase 4); `data/concepts/{merge,quick}Sort.js` (GitMerge / Zap
+  icons, Intermediate/Advanced, `visualizationSteps` from the generators so concept pages animate
+  manually without autoplay). `algorithms/registry.js` maps both with `kind:'sort'`;
+  `visualizations/registry.js` → the two new step-based visualizers; `playgroundRegistry.js` +
+  `concepts/registry.js` mapped. Algorithms switcher across all playgrounds shows **7 pills**
+  (Searching: Linear/Binary; Sorting: Bubble/Selection/Insertion/Merge/Quick).
+- **`VisualizationProgress` dot→bar cap** (`MAX_DOTS = 26`): ≤26 steps render the existing dot
+  trail; longer timelines (merge ~55, quick ~28+, and large random arrays) render a `.viz-progress__bar`
+  progressbar (`aria-valuemin/max/now` + accent fill) so the STEP pill stays exact without a 55-dot
+  row. `.viz-progress__dots` gained `flex-wrap: wrap` so dot rows (e.g. insertion concept, 26 steps)
+  wrap instead of clipping on narrow mobile. This preserves the Phase 4 insertion-concept dot
+  assertion (>5 dots) and fixes its latent 26-dot mobile clip.
+- **NO new deps.** `npm run lint` ✓ (clean), `npm run build` ✓ (2347 modules; `index-DiKsHEO8.js`
+  496.67 kB gzip 147.97, `index-By5MrqP2.css` 81.21 kB gzip 10.87, dist/index.html 1.02 kB; built
+  in 0.85s).
+- **Verification**: Node generator unit test (`test-phase5-algorithms.mjs`, temp) **69/69 PASS**
+  (merge/quick exact final orders + every stat counter + terminal chips/facts shape, edge cases,
+  duplicates, negatives, empty). Headless Edge CDP harness (`verify-phase5.mjs`, temp; self-hosted
+  Vite :5241, CDP :9340) **131/131 PASS, 0 console errors**: both playground flows (7-pill switcher
+  with Searching|Sorting labels, info 4 rows, random/preset, validation gates, run→auto-play→
+  auto-stop, STEP pill, progress **bar** mode for >26 steps, one engine instance, pipeline chips +
+  active phase, range pill, cut markers + tags, pointer pills per kind, terminal chip + sorted cells,
+  real stats in facts + status detail, prev disabled at step 1 + prev navigation, reset→idle,
+  reset keeps values, input-change invalidation, no overflow @1440/390), merge (single-element base
+  step, negatives, run-buffered order check), quick (pivot scan part partitioned swapping states +
+  sorted final), concept pages (merge 7 cells / quick 6 cells, bar mode), regressions (bubble stats
+  unchanged, binary found chip, linear found chip, insertion concept dots >5 + no overflow @1440/320
+  + dots no longer clipped on mobile), explore still 12 cards, invalid slug, zero console errors.
+- **Test-harness lessons**: ① CDP `Runtime.evaluate` errors are `'<method>: Invalid parameters'` —
+  a misplaced backtick caused a *boolean* (not string) `expression`; always pass a string. ② Poll
+  for playback auto-stop (the tick flips `isPlaying` off only on the *next* timer tick after the
+  last step). ③ `Emulation.setDeviceMetricsOverride` toggling + immediate `scrollWidth` reads can
+  race layout — poll `noHorizontalOverflow` for a stable `false`. ④ `.viz-progress__dot` count must
+  be measured per-intent: the Phase 4 "insertion dots >5" check is on `/concept/insertion-sort`
+  (playground idle shows no engine). ⑤ The 26-dot row's `getBoundingClientRect` extends past a
+  320px viewport even when the page doesn't scroll — assert `scrollWidth` for page overflow *and*
+  per-dot `getBoundingClientRect` for visible clipping. ⑥ `setViewport` returns undefined — don't
+  `.check(await setViewport(...), true)`.
 

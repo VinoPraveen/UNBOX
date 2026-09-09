@@ -4,6 +4,8 @@ import PlaygroundInput from '../PlaygroundInput/PlaygroundInput.jsx';
 import PlaygroundControls from '../PlaygroundControls/PlaygroundControls.jsx';
 import PlaygroundOutput from '../PlaygroundOutput/PlaygroundOutput.jsx';
 import PlaygroundStatus from '../PlaygroundStatus/PlaygroundStatus.jsx';
+import AlgorithmInfo from '../AlgorithmInfo/AlgorithmInfo.jsx';
+import AlgorithmSwitcher from '../AlgorithmSwitcher/AlgorithmSwitcher.jsx';
 import './PlaygroundShell.css';
 
 const READY = {
@@ -41,6 +43,10 @@ function defaultValues(inputs) {
   return values;
 }
 
+function fieldById(inputs, id) {
+  return inputs.find((field) => field && field.id === id) ?? null;
+}
+
 export default function PlaygroundShell({ config }) {
   const { inputs = [], operations = [] } = config;
   const [values, setValues] = useState(() => defaultValues(inputs));
@@ -65,6 +71,20 @@ export default function PlaygroundShell({ config }) {
     } else {
       setStatus(READY);
     }
+  };
+
+  const handleRandom = (id) => {
+    const field = fieldById(inputs, id);
+    if (!field || typeof field.randomize !== 'function') return;
+    const array = field.randomize();
+    handleInputChange(id, array.join(', '));
+  };
+
+  const handlePreset = (id, index) => {
+    const field = fieldById(inputs, id);
+    const preset = field?.presets?.[index];
+    if (!preset) return;
+    handleInputChange(id, preset.values.join(', '));
   };
 
   const scrollToOutput = () => {
@@ -118,8 +138,10 @@ export default function PlaygroundShell({ config }) {
       <PlaygroundHeader
         title={config.title}
         description={config.description}
-        backTo={`/concept/${config.slug}`}
+        backTo={`/concept/${config.conceptSlug ?? config.slug}`}
       />
+
+      <AlgorithmSwitcher currentSlug={config.slug} />
 
       <div className="playground__grid">
         <div className="playground__panel playground__panel--left">
@@ -134,6 +156,8 @@ export default function PlaygroundShell({ config }) {
                     value={values[field.id]}
                     error={errors[field.id]}
                     onChange={(v) => handleInputChange(field.id, v)}
+                    onRandom={handleRandom}
+                    onPreset={handlePreset}
                   />
                 ))}
               </div>
@@ -150,6 +174,8 @@ export default function PlaygroundShell({ config }) {
               disabled={{ run: runDisabled }}
             />
           </section>
+
+          <AlgorithmInfo slug={config.algorithmSlug} />
         </div>
 
         <div className="playground__panel playground__panel--right" ref={outputRef}>

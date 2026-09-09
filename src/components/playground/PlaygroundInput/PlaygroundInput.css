@@ -59,3 +59,54 @@ textarea.playground-input__field {
 .input-invalid .playground-input__field {
   border-color: rgba(248, 113, 113, 0.7);
 }
+
+.playground-input__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-1);
+}
+
+.playground-input__tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  padding: 6px 12px;
+}
+
+.playground-input__preset {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.playground-input__preset-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.playground-input__select {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.playground-input__select:hover {
+  border-color: #334155;
+}
+
+.playground-input__select:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
+}
