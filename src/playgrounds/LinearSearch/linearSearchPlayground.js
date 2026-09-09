@@ -1,9 +1,9 @@
-import BinarySearchPlayground from './BinarySearchPlayground.jsx';
-import { generateBinarySearchStates } from './binarySearchAlgorithm.js';
+import createAlgorithmPlayground from '../../components/playground/AlgorithmPlayground/AlgorithmPlayground.jsx';
+import { generateLinearSearchSteps } from '../../algorithms/searching/linearSearch.js';
 import { randomUniqueArray } from '../../algorithms/utils.js';
 
-const ARRAY_DEFAULT = [10, 20, 30, 40, 50, 60, 70];
-const TARGET_DEFAULT = 60;
+const ARRAY_DEFAULT = [10, 20, 30, 40, 50];
+const TARGET_DEFAULT = 40;
 
 const MAX_ARRAY_LENGTH = 30;
 
@@ -33,11 +33,6 @@ export function validate(state) {
     errors.array = `Please enter at most ${MAX_ARRAY_LENGTH} numbers for the best view.`;
   } else if (!arr.every((v) => Number.isFinite(v))) {
     errors.array = 'Please enter only valid numbers.';
-  } else {
-    const sorted = arr.every((v, i) => i === 0 || arr[i - 1] <= v);
-    if (!sorted) {
-      errors.array = 'Binary Search requires a sorted array.';
-    }
   }
 
   const target = parseTarget(state.target);
@@ -64,9 +59,9 @@ function run(values, { setErrors, setStatus, setExperiment }) {
     return;
   }
 
-  const states = generateBinarySearchStates(parsedArray, parsedTarget);
+  const states = generateLinearSearchSteps(parsedArray, parsedTarget);
   const last = states[states.length - 1];
-  const comparisons = last.comparisonCount;
+  const comparisons = last.facts.Comparisons;
   const unit = comparisons === 1 ? 'comparison' : 'comparisons';
 
   setErrors({});
@@ -82,7 +77,7 @@ function run(values, { setErrors, setStatus, setExperiment }) {
       ? {
           kind: 'success',
           title: 'Target found.',
-          detail: `${parsedTarget} matches the array after ${comparisons} ${unit}.`,
+          detail: `${parsedTarget} was found at index ${last.foundIndex} after ${comparisons} ${unit}.`,
         }
       : {
           kind: 'notice',
@@ -99,30 +94,32 @@ function onReset(_values, { setErrors, setStatus, setExperiment }) {
     kind: 'idle',
     title: 'Ready to experiment.',
     detail:
-      'Enter a sorted array and a target value, then press Run to step through the search.',
+      'Enter an array and a target value, then press Run to watch linear search step through the array.',
   });
 }
 
-const binarySearch = {
-  slug: 'binary-search',
-  title: 'Binary Search',
-  description: 'Experiment with the algorithm and see what happens.',
+const linearSearch = {
+  slug: 'linear-search',
+  title: 'Linear Search',
+  description: 'Watch every element get checked one by one until the target is found.',
+  algorithmSlug: 'linear-search',
   experience: 'full',
-  conceptSlug: 'binary-search',
-  Component: BinarySearchPlayground,
+  conceptSlug: 'linear-search',
+  Component: createAlgorithmPlayground('linear-search'),
   inputs: [
     {
       id: 'array',
-      label: 'Sorted Array',
+      label: 'Array',
       type: 'array',
       defaultValue: ARRAY_DEFAULT,
-      placeholder: '10, 20, 30, 40, 50, 60, 70',
-      help: 'Comma-separated numbers in ascending order.',
-      randomize: () => randomUniqueArray(8, 1, 99).sort((a, b) => a - b),
+      placeholder: '10, 20, 30, 40, 50',
+      help: 'Comma-separated numbers. Order does not matter for linear search.',
+      randomize: () => randomUniqueArray(8, 1, 99),
       presets: [
-        { label: 'Small', values: [5, 9, 12, 18, 24] },
-        { label: 'Medium', values: [11, 22, 34, 51, 68, 87, 99] },
-        { label: 'Large', values: [7, 14, 28, 41, 56, 63, 70, 88, 96] },
+        { label: 'Small', values: [5, 2, 8, 1, 9] },
+        { label: 'Medium', values: [64, 34, 25, 12, 22, 11, 90] },
+        { label: 'Nearly Sorted', values: [10, 20, 30, 25, 40, 50] },
+        { label: 'Reverse', values: [90, 70, 50, 30, 10] },
       ],
     },
     {
@@ -130,12 +127,12 @@ const binarySearch = {
       label: 'Target',
       type: 'number',
       defaultValue: TARGET_DEFAULT,
-      placeholder: '60',
+      placeholder: '40',
       help: 'The value you want to find.',
     },
   ],
   operations: [
-    { id: 'run', label: 'Run', variant: 'gold', ariaLabel: 'Run binary search' },
+    { id: 'run', label: 'Run', variant: 'gold', ariaLabel: 'Run linear search' },
     {
       id: 'reset',
       label: 'Reset',
@@ -148,4 +145,4 @@ const binarySearch = {
   onReset,
 };
 
-export default binarySearch;
+export default linearSearch;

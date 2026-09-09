@@ -13,4 +13,4 @@ export default function Logo() {
       <span className="logo__name">UNBOX</span>
     </Link>
   );
-}
+}   

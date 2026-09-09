@@ -18,6 +18,7 @@
 
 .viz-progress__dots {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -40,4 +41,30 @@
 .viz-progress__dot--current {
   background-color: var(--color-accent);
   border-color: var(--color-accent);
+}
+
+.viz-progress__bar {
+  position: relative;
+  width: 140px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.viz-progress__bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background-color: var(--color-accent);
+  transition: width var(--transition-base);
+}
+
+@media (max-width: 768px) {
+  .viz-progress__bar {
+    width: 90px;
+  }
 }

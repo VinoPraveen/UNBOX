@@ -1,3 +1,4 @@
+import { Shuffle } from 'lucide-react';
 import './PlaygroundInput.css';
 
 function valueToText(value, type) {
@@ -9,20 +10,16 @@ function valueToText(value, type) {
   return value;
 }
 
-export default function PlaygroundInput({ field, value, onChange, error }) {
+export default function PlaygroundInput({ field, value, onChange, error, onRandom, onPreset }) {
   const { id, label, type, placeholder, help } = field;
-
   const isTextarea = type === 'array';
-
-  const handleChange = (raw) => {
-    onChange(raw);
-  };
+  const showTools = isTextarea && (field.randomize || field.presets);
 
   const inputProps = {
     id,
     className: 'playground-input__field',
     placeholder: placeholder ?? '',
-    onChange: (e) => handleChange(e.target.value),
+    onChange: (e) => onChange(e.target.value),
     value: valueToText(value, type),
   };
 
@@ -46,6 +43,48 @@ export default function PlaygroundInput({ field, value, onChange, error }) {
           {help}
         </span>
       ) : null}
+
+      {showTools && (
+        <div className="playground-input__tools">
+          {field.randomize ? (
+            <button
+              type="button"
+              className="btn btn-ghost playground-input__tool"
+              onClick={() => onRandom(id)}
+            >
+              <Shuffle size={14} aria-hidden="true" />
+              Generate Random Array
+            </button>
+          ) : null}
+          {field.presets ? (
+            <div className="playground-input__preset">
+              <label
+                className="playground-input__preset-label"
+                htmlFor={`${id}-preset`}
+              >
+                Presets
+              </label>
+              <select
+                id={`${id}-preset`}
+                className="playground-input__select"
+                value=""
+                onChange={(e) => onPreset(id, Number(e.target.value))}
+                aria-label={`${label} presets`}
+              >
+                <option value="" disabled>
+                  Array presets\u2026
+                </option>
+                {field.presets.map((preset, index) => (
+                  <option key={preset.label} value={index}>
+                    {preset.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+        </div>
+      )}
+
       {error ? (
         <span className="playground-input__error" id={`${id}-error`} role="alert">
           {error}
