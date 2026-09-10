@@ -7,6 +7,7 @@ import mergeSort from './mergeSort.js';
 import quickSort from './quickSort.js';
 import stack from './stack.js';
 import queue from './queue.js';
+import linkedList from './linkedList.js';
 
 const registry = {
   'binary-search': binarySearch,
@@ -18,6 +19,7 @@ const registry = {
   'quick-sort': quickSort,
   stack,
   queue,
+  'linked-list': linkedList,
 };
 
 export function getConceptData(slug) {

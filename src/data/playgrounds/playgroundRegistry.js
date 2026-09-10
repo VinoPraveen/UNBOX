@@ -7,6 +7,7 @@ import mergeSort from '../../playgrounds/MergeSort/mergeSortPlayground.js';
 import quickSort from '../../playgrounds/QuickSort/quickSortPlayground.js';
 import stack from '../../playgrounds/Stack/stackPlayground.js';
 import queue from '../../playgrounds/Queue/queuePlayground.js';
+import linkedList from '../../playgrounds/LinkedList/linkedListPlayground.js';
 
 const registry = {
   'binary-search': binarySearch,
@@ -18,6 +19,7 @@ const registry = {
   'quick-sort': quickSort,
   stack,
   queue,
+  'linked-list': linkedList,
 };
 
 export function getPlayground(slug) {

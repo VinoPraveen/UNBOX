@@ -4,6 +4,7 @@ import MergeSortVisualizer from './MergeSort/MergeSortVisualizer.jsx';
 import QuickSortVisualizer from './QuickSort/QuickSortVisualizer.jsx';
 import StackVisualizer from './Stack/StackVisualizer.jsx';
 import QueueVisualizer from './Queue/QueueVisualizer.jsx';
+import LinkedListVisualizer from './LinkedList/LinkedListVisualizer.jsx';
 
 const visualizations = {
   'binary-search': {
@@ -41,6 +42,10 @@ const visualizations = {
   queue: {
     type: 'interactive',
     Component: QueueVisualizer,
+  },
+  'linked-list': {
+    type: 'interactive',
+    Component: LinkedListVisualizer,
   },
 };
 

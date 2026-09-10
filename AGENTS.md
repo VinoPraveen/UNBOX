@@ -16,16 +16,20 @@ Tagline: **"See what's inside."**
 The platform explains concepts through interactive visualizations, animations,
 examples, playgrounds, and quizzes.
 
-- Current phase: **Phase 5 — Extended Algorithm Set** (Linear Search, Binary Search, Bubble Sort,
-  Selection Sort, Insertion Sort, **Merge Sort, Quick Sort**). Phase 2.4.2 built the single Binary
-  Search playground (pure state generator + concept wrapper + Validation Engine). Phase 4 generalizes
-  that into a reusable pipeline: shared `src/algorithms/` step generators → standardized
-  snapshot format → one shared `ArrayVisualization` → the existing Visualization Engine. Phase 5
-  adds Merge Sort + Quick Sort as distinct visualizers (pipeline chips, range pills, divider cut
-  markers, per-kind pointer pills), a generalized `createSortingPlayground` (per-algorithm stat
-  order), and a dot→bar progress mode for long timelines. Seven algorithms run on
-  `/playground/:slug` with random arrays, preset arrays, live validation, auto-play, and full
-  step timelines (5 sort + 2 search playgrounds).
+- Current phase: **Phase 6 — Interactive Data Structures Playgrounds** (Stack, Queue, Linked List).
+  Phase 2.4.2 built the single Binary Search playground (pure state generator + concept wrapper +
+  Validation Engine). Phase 4 generalized that into a reusable pipeline: shared `src/algorithms/`
+  step generators → standardized snapshot format → one shared `ArrayVisualization` → the existing
+  Visualization Engine. Phase 5 added Merge Sort + Quick Sort as distinct visualizers (pipeline
+  chips, range pills, divider cut markers, per-kind pointer pills), a generalized
+  `createSortingPlayground`, and a dot→bar progress mode for long timelines. Phase 6 adds three
+  **operation-driven** data-structure playgrounds (`/playground/stack|queue|linked-list`) that do
+  NOT precompute step timelines — they run real DS methods per click (PUSH/POP/Peek, ENQUEUE/
+  DEQUEUE/Front/Rear, Insert/Delete/Search) with animated boards, operation history + Undo, live
+  stats, and underflow/no-crash errors. Seven algorithms still run on `/playground/:slug` with
+  random arrays, presets, live validation, auto-play, and step timelines; the DS playgrounds use a
+  new shared "Data Structures" switcher group and a minimal Linked List concept page
+  (`/concept/linked-list`).
 
 ## Routing (since 2026-08-31)
 
@@ -140,7 +144,9 @@ src/
 │   │   │                 divider cut markers, pivot/scan/part pointer pills)
 │   │   ├── BinarySearch/ BinarySearchVisualizer.jsx/.css (step-based, engine-controlled)
 │   │   ├── Stack/        StackVisualizer.jsx/.css (interactive, PUSH/POP/RESET)
-│   │   └── Queue/        QueueVisualizer.jsx/.css (interactive, ENQUEUE/DEQUEUE/RESET)
+│   │   ├── Queue/        QueueVisualizer.jsx/.css (interactive, ENQUEUE/DEQUEUE/RESET)
+│   │   └── LinkedList/   LinkedListVisualizer.jsx/.css (interactive demo: insert end/beginning,
+│   │                     search, reset — reuses dsp-* classes from the playground CSS)
 │   ├── concept/          ConceptPage section components (ConceptHeader/Nav/Progress,
 │   │                     Overview/HowItWorks/Visualization sections)
 │   ├── playground/       reusable playground shell + sections (registry-driven)
@@ -151,8 +157,9 @@ src/
 │   │   ├── PlaygroundOutput/    labeled output area (renders viz / children)
 │   │   ├── PlaygroundStatus/    Idle/Running/Success/Error (aria-live, not color-only)
 │   │   ├── AlgorithmPlayground/ factory wrapping an algorithm's steps → VisualizationEngine
-│   │   ├── AlgorithmInfo/       algorithm description + complexity rows
-│   │   └── AlgorithmSwitcher/   grouped pill links between the algorithm playgrounds
+│   │   ├── AlgorithmInfo/       algorithm description + complexity/motto + operation rows
+│   │   ├── AlgorithmSwitcher/   grouped pill links between the algorithm playgrounds
+│   │   └── OperationHistory/    reversible op list + Undo (is shared by the DS playgrounds)
 │   ├── Navbar/          Navbar.jsx + Navbar.css
 │   ├── Logo/            Logo.jsx + Logo.css  (logo image + "UNBOX" wordmark)
 │   ├── InteractiveDemo/ stack demo card — reuses <StackVisualizer> (InteractiveDemo.jsx + .css)
@@ -176,10 +183,12 @@ src/
 ├── components/
 │   ├── playground/      reusable playground shell + sections (see below)
 │   └── ...
-├── playgrounds/         per-concept playground configs (BinarySearch/Stack/Queue)
+├── dataStructures/      pure DS factories + rebuilders (stack.js / queue.js / linkedList.js)
+├── playgrounds/         per-concept playground configs (BinarySearch/Stack/Queue/LinkedList +
+│                       shared sortingPlayground.js, dataStructureShared.js)
 ├── data/
 │   ├── concepts.js      Explore list (12 concepts) — do not mutate
-│   ├── concepts/        per-concept data modules + registry.js (binary-search/stack/queue)
+│   ├── concepts/        per-concept data modules + registry.js (binary-search/stack/queue/linked-list)
 │   └── playgrounds/     playgroundRegistry.js (getPlayground(slug))
 ├── styles/
 │   ├── variables.css    design tokens
@@ -1167,4 +1176,115 @@ Out of scope (later phases):
   320px viewport even when the page doesn't scroll — assert `scrollWidth` for page overflow *and*
   per-dot `getBoundingClientRect` for visible clipping. ⑥ `setViewport` returns undefined — don't
   `.check(await setViewport(...), true)`.
+
+### 2026-09-10 — Phase 6: Interactive Data Structures Playgrounds (Stack / Queue / Linked List)
+
+- **Goal**: add three **operation-driven** data-structure playgrounds at `/playground/stack`,
+  `/playground/queue`, `/playground/linked-list` that do NOT precompute step timelines — each
+  click runs the real DS method (PUSH/POP/Peek, ENQUEUE/DEQUEUE/Front/Rear, Insert/Delete/Search),
+  with an animated board, reversible operation history + Undo, live stats, and underflow/viewer-
+  errors that never crash. The 7 algorithm playgrounds, landing, Explore, and all concept pages
+  stay behavior-identical (verified by regression). User decision: include a minimal Linked List
+  concept page (`/concept/linked-list`, interactive demo) so all DS playgrounds have an anchor.
+- **New pure-DS layer** `src/dataStructures/{stack,queue,linkedList}.js` — framework-free
+  factories + rebuilders used by the playgrounds: `createStack`/`createQueue`/
+  `createLinkedList` as **constructor-less factory objects** (avoid the lint rule banning `new`
+  for external globals) with methods `push/pop/peek/size/toArray` (stack), `enqueue/dequeue/front/
+  rear/toArray` (queue, node-based head/tail so enqueue is O(1)); `insertAtIndex` returns
+  `{ok,reason}` (invalid index/out-of-range **rejects**, no throw), `deleteByValue` returns
+  `{ok,index}` (missing → `{ok:false,index:-1}`), `search` returns
+  `{found,index,comparisons,trail}`. Each module also exports `rebuildX(items)` that replays
+  the array into a fresh DS (stateless); empty input never crashes. Unit-tested directly in Node
+  (`test-dataStructures.mjs`, temp) — **95/95 passed**.
+- **PlaygroundShell extension** (non-breaking for the algorithm playgrounds): `handleInputChange`
+  now honors `config.persistent:true` (DS playgrounds keep their live structure/status while
+  typing in inputs — algorithm configs stay non-persistent and keep the INVALIDATED idle status);
+  `handleAction` delegates any non-run/reset op to `config.onAction(opId, values,
+  {setErrors,setStatus,setExperiment,experiment})`; the shell passes `config.disabled(values,
+  experiment)` (per-op `disabled` map) to `PlaygroundControls`, passes `onAction={handleAction}`
+  down to `config.Component`, and hands `experiment` to onAction helpers so configs can compute
+  history without local module state.
+- **DS playground configs** (`src/playgrounds/{Stack,Queue,LinkedList}/*.js` + `.jsx/.css`):
+  `experience:'full'`, `persistent:true`, `algorithmSlug` set, `inputs` (Value `number` /
+  omitted / Value+Index), `operations` (checked labels + curated `ariaLabel`s for the engine
+  tests), `disabled: () => ({})` (never disables op buttons — errors surface via inline
+  `role="alert"` + `.playground-status`), `Component` + `onAction`. Experiment = `{items,
+  history, lastMessage, meta, kind}`; **history entries store the previous items snapshot**
+  (`withHistory(history, message, prevItems)`, capped at 50), Undo pops the last entry and
+  restores those items; read-only ops (Peek/Front/Rear/Search) never add history; each op bumps
+  a monotonic `actionId` (from `src/playgrounds/dataStructureShared.js` → `parseNumber`,
+  `withHistory`, `actionId`). Underflow: `stack.pop()`/`queue.dequeue()` on empty → error status
+  ("Stack underflow." / "Queue underflow.") + explanatory detail, buttons remain enabled.
+- **Visualizers** (all reuse `dsp-*` BEM classes, `AnimatePresence` keys `${index}-${value}`,
+  `layout` springs, `aria-live` message lines):
+  - `StackPlayground.jsx` — vertical LIFO column, TOP lime pointer pill above the top block,
+    blocks enter `y:-70` / exit `y:-70`, Peek highlights the top block, stats Size/Top, "Stack
+    Underflow" empty copy via `.dsp-stack__empty`. Idle state `.dsp-idle` (Layers icon, "Ready to
+    experiment.").
+  - `QueuePlayground.jsx` — horizontal FIFO row with FRONT/REAR labels at the ends, enqueue
+    enters from the rear (`x:+48`), dequeue leaves the front (`x:-48`), stats Size/Front/Rear,
+    ".dsp-queue__empty". ListOrdered icon. (Queue/Stack **concept demo visualizers on
+    /concept/stack|queue are untouched** — the new ones live under `playgrounds/`.)
+  - `LinkedListPlayground.jsx/.css` — horizontal node track: `[value|next]` node cards, animated
+    arrows (violet), HEAD/TAIL tag pills at the ends of the list, a NULL chip at the tail,
+    `.dsp-list__scroll` (overflow-x auto + hidden scrollbar) so wide lists scroll **inside the
+    board only**; Insert Beginning/End/Index, Delete Value, Search, Clear ops; search highlights
+    the found node `.dsp-node--found` and trails prior nodes; meta carries `trail` (visited
+    indices) + `comparisons`; stats Size/Head/Tail (+ Comparisons after a search). Invalid index
+    → inline error "Enter a valid index from 0 to N." (regex `^\d+$`); search miss → **notice**
+    status "Value not found." + "999 not found (searched 2 nodes)"; delete missing → error
+    "Value not found."
+- **Playground registry + switcher + info**: `playgroundRegistry.js` maps `'linked-list'`;
+  `algorithms/registry.js` adds `stack`/`queue`/`linked-list` (all `kind:'data-structure'`,
+  `category:'Data Structures'`, with `motto` + `complexity:{operations:[{label,value}]}`) and
+  `GROUP_ORDER = ['Searching','Sorting','Data Structures']` → AlgorithmSwitcher renders **10
+  pills** under 3 group labels; `AlgorithmInfo` now shows the DS `motto` (left panel under the
+  description) and switches to **operation rows** (Push=O(1), Pop=O(1), Peek=O(1), Space=O(n)
+  / Enqueue..Front..Rear / Insert at head..Search..Delete..Space) when
+  `complexity.operations` exists — search/sort complexity blocks untouched.
+- **OperationHistory** (`components/playground/OperationHistory/OperationHistory.jsx/.css`):
+  renders the last 8 operations reversed (`history.slice(-8).reverse()`), each entry is a dotline
+  + message, plus an Undo button with aria-label "Undo the last operation" — used by all three DS
+  playgrounds; undo status "Undid last operation."
+- **Linked List concept page**: `src/data/concepts/linkedList.js` (Link2 icon, Intermediate,
+  ~6 min, overview + how-it-works text, `visualizationSteps` generated by running
+  `createLinkedList` on `visualizationConfig.initialValues=[10,20,30]`) registered in
+  `concepts/registry.js`; `visualizations/registry.js` maps `'linked-list'` → new interactive
+  **`LinkedListVisualizer`** (`components/visualizations/LinkedList/`) — Insert Beginning /
+  Insert End / Search / Reset demo that reuses the same `dsp-*` classes/shape as the playground
+  so both stay visually consistent.
+- **NO new deps.** Note: lucide-react in this project does **not** export a `Stack` icon (build
+  failed `[MISSING_EXPORT]`) → the stack idle state uses `Layers`. `npm run lint` ✓ (clean),
+  `npm run build` ✓ (2363 modules; `dist/assets/index-D-dFuo_b.js` 530.82 kB gzip 155.79,
+  `index-C8yHlcda.css` 91.72 kB gzip 12.17; >500 kB chunk warning pre-existing/expected).
+- **Verified via headless Edge CDP + self-hosted Vite (`verify-phase6.mjs` in temp, Vite :5261,
+  CDP :9360) — 129/129 PASS, 0 console errors**: all 3 DS shells (h1, PLAYGROUND label, Back to
+  Concept, idle status+idle title, 10-link switcher + 3 group labels, info description + motto +
+  exact per-DS op rows); Stack flow (value input, push-empty inline error + status, push 42 →
+  blocks/TOP pill/stats Size·1 Top·42, push 55 → [42,55], pop → "Popped 55" + [42], **persistent
+  typing keeps structure [42] and "Popped." status**, peek message "Peeked 42" + blocks kept,
+  clear → empty copy, underflow status + pop **stays enabled**, history list + undo restores [7]
+  + second undo empties); Queue flow (labels FRONT/REAR after enqueue, enqueue status/blocks/
+  stats Size/Front/Rear, enqueue [10,20,30], front "Front — 10" / rear "Rear — 30" without
+  popping, dequeue → "Dequeued 10" + [20,30], drain → empty copy, underflow + button enabled,
+  undo empties); Linked List flow (insert beginning/end/index with messages + node order,
+  invalid-index inline alert referencing the live max "from 0 to 3" + unchanged list, delete →
+  "Deleted 15 (node 1)" + [5,53], search found "Found 53 at node 1 (2 comparisons)" +
+  Comparisons·2 stat + found-node highlight, miss → notice + "999 not found (searched 2 nodes)",
+  delete-missing error, 14-node list → HEAD/TAIL tags + NULL chip + **internal scroll contains
+  the wide list**, clear → empty, undo restores the exact 14-node pre-clear snapshot); no page
+  overflow @1440/768/390/320 on all three playgrounds + `/concept/linked-list`; concept pages
+  (linked-list h1 + `.lviz` + nodes + search works, no step engine; stack/queue h1 + viz);
+  regressions (explore still 12 cards incl. Linked List card, binary found chip "Found 60" +
+  LOW/MID/HIGH pointers + "Target found.", linear found chip "Found · index 3", bubble stats
+  {Comparisons:10,Swaps:4,Passes:4} + "Array sorted", merge/quick h1s, switcher still 10 links).
+- **Test-harness lessons**: ① sorting playground run labels are title-cased (`Run Bubble Sort`,
+  `Run Merge Sort`…), binary is `Run binary search` — the case-sensitive clickButton match
+  silently misses otherwise. ② DS visualizers render their FRONT/REAR labels and
+  `.dsp-list__scroll` **only when an experiment exists** (idle shows `.dsp-idle`), so assert them
+  after the first op. ③ AnimatePresence keeps exiting blocks/nodes in the DOM during their exit
+  animation — wait ~500ms after destructive ops (or poll) before reading counts/text. ④ Terminal
+  result chips need polling (`chipText`): AnimatePresence `mode="wait"` swaps copy after the
+  exit; linear's chip text is `Found · index 3` (with dot), not bare `Found`. ⑤ `node --check`
+  beats eyeballing paren counts after writing a big harness.
 

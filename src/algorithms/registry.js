@@ -42,9 +42,62 @@ const algorithms = {
     generateSteps: generateQuickSortSteps,
     kind: 'sort',
   },
+  stack: {
+    slug: 'stack',
+    name: 'Stack',
+    category: 'Data Structures',
+    description:
+      'A LIFO structure where the newest item sits on top and is always the first one removed.',
+    kind: 'data-structure',
+    motto: 'LIFO \u2014 Last In, First Out',
+    complexity: {
+      operations: [
+        { label: 'Push', value: 'O(1)' },
+        { label: 'Pop', value: 'O(1)' },
+        { label: 'Peek', value: 'O(1)' },
+        { label: 'Space', value: 'O(n)' },
+      ],
+    },
+  },
+  queue: {
+    slug: 'queue',
+    name: 'Queue',
+    category: 'Data Structures',
+    description:
+      'A FIFO structure where items are added at the rear and removed from the front.',
+    kind: 'data-structure',
+    motto: 'FIFO \u2014 First In, First Out',
+    complexity: {
+      operations: [
+        { label: 'Enqueue', value: 'O(1)' },
+        { label: 'Dequeue', value: 'O(1)' },
+        { label: 'Front', value: 'O(1)' },
+        { label: 'Rear', value: 'O(1)' },
+        { label: 'Space', value: 'O(n)' },
+      ],
+    },
+  },
+  'linked-list': {
+    slug: 'linked-list',
+    name: 'Linked List',
+    category: 'Data Structures',
+    description:
+      'A sequence of nodes where each node holds a value and a reference to the next node.',
+    kind: 'data-structure',
+    motto: 'Nodes connected through references.',
+    complexity: {
+      operations: [
+        { label: 'Insert at head', value: 'O(1)' },
+        { label: 'Insert at tail', value: 'O(n)' },
+        { label: 'Search', value: 'O(n)' },
+        { label: 'Delete', value: 'O(n)' },
+        { label: 'Space', value: 'O(n)' },
+      ],
+    },
+  },
 };
 
-const GROUP_ORDER = ['Searching', 'Sorting'];
+const GROUP_ORDER = ['Searching', 'Sorting', 'Data Structures'];
 
 export function getAlgorithm(slug) {
   return algorithms[slug] ?? null;

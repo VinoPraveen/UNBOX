@@ -8,6 +8,14 @@
   background: var(--color-surface);
 }
 
+.algorithm-info__motto {
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-accent-bright);
+  margin: 0;
+}
+
 .algorithm-info__description {
   font-size: var(--text-base);
   line-height: 1.7;
