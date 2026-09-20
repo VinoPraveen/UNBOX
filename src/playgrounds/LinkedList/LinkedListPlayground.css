@@ -1,0 +1,221 @@
+.dsp-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dsp-list__board {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-2);
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dsp-list__scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: var(--space-1) var(--space-1);
+}
+
+.dsp-list__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.dsp-list__track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 72px;
+  width: max-content;
+}
+
+.dsp-list__empty {
+  margin: 0;
+  padding: var(--space-5) 0;
+  width: 100%;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.dsp-list__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.dsp-list__cell--null .dsp-null {
+  align-self: flex-start;
+}
+
+.dsp-node__tag {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  min-height: 1em;
+}
+
+.dsp-node__tag--head {
+  color: var(--color-highlight);
+}
+
+.dsp-node__tag--tail {
+  color: var(--color-accent-bright);
+}
+
+.dsp-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 76px;
+  height: 48px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-white);
+  color: var(--color-navy);
+  font-weight: 700;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.25s ease, border-color 0.25s ease,
+    box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.dsp-node__value {
+  font-size: var(--text-lg);
+  letter-spacing: 0.03em;
+}
+
+.dsp-node__pointer {
+  font-size: var(--text-sm);
+  color: var(--color-cyan);
+}
+
+.dsp-node--visited {
+  background-color: rgba(34, 211, 238, 0.1);
+  border-color: rgba(34, 211, 238, 0.4);
+}
+
+.dsp-node--found {
+  background-color: #151b2b;
+  border-color: var(--color-highlight);
+  box-shadow: 0 0 0 1px var(--color-highlight), var(--shadow-highlight);
+}
+
+.dsp-node--found .dsp-node__value {
+  color: var(--color-highlight);
+}
+
+.dsp-node--inserted {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent), var(--shadow-accent);
+}
+
+.dsp-node--deleted {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+  opacity: 0.7;
+}
+
+.dsp-null {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  border: 1px dashed var(--color-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  margin-top: 18px;
+  white-space: nowrap;
+}
+
+.dsp-list__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: 0 var(--space-2);
+}
+
+.dsp-list__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.dsp-list__swatch {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.dsp-list__swatch--head {
+  color: var(--color-highlight);
+}
+
+.dsp-list__swatch--arrow {
+  color: var(--color-cyan);
+}
+
+.dsp-list__swatch--null {
+  color: var(--color-muted);
+}
+
+.dsp-list__explain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3) 0 0;
+  border-top: 1px dashed var(--color-border);
+}
+
+.dsp-list__message {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.dsp-list__detail {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+.dsp-list__motto {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-accent-bright);
+}
+
+@media (max-width: 768px) {
+  .dsp-node {
+    min-width: 64px;
+    height: 42px;
+    padding: 0 8px;
+  }
+
+  .dsp-node__value {
+    font-size: var(--text-base);
+  }
+
+  .dsp-list__track {
+    gap: 8px;
+  }
+
+  .dsp-null {
+    margin-top: 14px;
+  }
+}

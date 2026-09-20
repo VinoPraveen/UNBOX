@@ -7,6 +7,13 @@ import mergeSort from './mergeSort.js';
 import quickSort from './quickSort.js';
 import stack from './stack.js';
 import queue from './queue.js';
+import linkedList from './linkedList.js';
+import binaryTree from './binaryTree.js';
+import binarySearchTree from './binarySearchTree.js';
+import treeTraversals from './treeTraversals.js';
+import graphBasics from './graphBasics.js';
+import bfs from './bfs.js';
+import dfs from './dfs.js';
 
 const registry = {
   'binary-search': binarySearch,
@@ -18,6 +25,13 @@ const registry = {
   'quick-sort': quickSort,
   stack,
   queue,
+  'linked-list': linkedList,
+  'binary-tree': binaryTree,
+  'binary-search-tree': binarySearchTree,
+  'tree-traversals': treeTraversals,
+  'graph-basics': graphBasics,
+  bfs,
+  dfs,
 };
 
 export function getConceptData(slug) {

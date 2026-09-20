@@ -57,6 +57,9 @@ export default function PlaygroundShell({ config }) {
 
   const liveValidation = config.validate ? config.validate(values) : null;
   const runDisabled = Boolean(liveValidation && !liveValidation.ok);
+  const disabled = config.disabled
+    ? config.disabled(values, experiment)
+    : { run: runDisabled };
 
   const handleInputChange = (id, value) => {
     setValues((prev) => ({ ...prev, [id]: value }));
@@ -65,6 +68,7 @@ export default function PlaygroundShell({ config }) {
       const result = config.validate({ ...values, [id]: value });
       setErrors(result.errors ?? {});
     }
+    if (config.persistent) return;
     if (experiment) {
       setExperiment(null);
       setStatus(INVALIDATED);
@@ -130,6 +134,17 @@ export default function PlaygroundShell({ config }) {
         setStatus(config.experience === 'standby' ? STANDBY : READY);
       }
       scrollToOutput();
+      return;
+    }
+
+    if (typeof config.onAction === 'function') {
+      config.onAction(opId, values, {
+        setErrors,
+        setStatus,
+        setExperiment,
+        experiment,
+      });
+      scrollToOutput();
     }
   };
 
@@ -171,7 +186,7 @@ export default function PlaygroundShell({ config }) {
             <PlaygroundControls
               operations={operations}
               onAction={handleAction}
-              disabled={{ run: runDisabled }}
+              disabled={disabled}
             />
           </section>
 
@@ -181,7 +196,11 @@ export default function PlaygroundShell({ config }) {
         <div className="playground__panel playground__panel--right" ref={outputRef}>
           <PlaygroundOutput>
             {config.Component ? (
-              <config.Component experiment={experiment} values={values} />
+              <config.Component
+                experiment={experiment}
+                values={values}
+                onAction={handleAction}
+              />
             ) : (
               <div className="playground__ready">
                 <p className="playground__ready-title">Configuration ready.</p>
