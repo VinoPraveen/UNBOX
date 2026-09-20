@@ -13,6 +13,7 @@ function valueToText(value, type) {
 export default function PlaygroundInput({ field, value, onChange, error, onRandom, onPreset }) {
   const { id, label, type, placeholder, help } = field;
   const isTextarea = type === 'array';
+  const isSelect = type === 'select';
   const showTools = isTextarea && (field.randomize || field.presets);
 
   const inputProps = {
@@ -35,6 +36,20 @@ export default function PlaygroundInput({ field, value, onChange, error, onRando
       </label>
       {isTextarea ? (
         <textarea {...inputProps} rows={2} aria-describedby={help ? `${id}-help` : undefined} />
+      ) : isSelect ? (
+        <select
+          id={id}
+          className="playground-input__field playground-input__select"
+          value={valueToText(value, type)}
+          onChange={(e) => onChange(e.target.value)}
+          aria-describedby={help ? `${id}-help` : undefined}
+        >
+          {(field.options ?? []).map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       ) : (
         <input {...inputProps} aria-describedby={help ? `${id}-help` : undefined} />
       )}

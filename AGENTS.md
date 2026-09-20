@@ -16,7 +16,29 @@ Tagline: **"See what's inside."**
 The platform explains concepts through interactive visualizations, animations,
 examples, playgrounds, and quizzes.
 
-- Current phase: **Phase 6 — Interactive Data Structures Playgrounds** (Stack, Queue, Linked List).
+- Current phase: **Phase 8 — Interactive Graphs & Graph Algorithms Playgrounds** (Graph Basics,
+  BFS, DFS). New `GRAPHS` nav group alongside Trees. Shared infra: `src/dataStructures/graph.js`
+  (adjacency-list model, coordinates never stored in the model), `src/algorithms/graphs/
+  {graphSteps,bfs,dfs}.js` (deterministic alphabetical neighbor order, explicit QUEUE for BFS,
+  explicit STACK for DFS, visited set, target search with path, disconnected-component notes),
+  `src/components/visualizations/Graph/` (SVG canvas, draggable nodes, arrows, weight pills,
+  START/CURRENT/QUEUED/VISITED/FOUND/TARGET tags, queue/stack panel, result + path, stats),
+  `src/playgrounds/{graphShared,builderOps,GraphPlayground}` + GraphBasics/BFS/DFS configs
+  (Add/Remove Node/Edge, Toggle Directed, Load Example, Random, Clear, Run, Undo; new generic
+  `select` input type in PlaygroundInput). Concept pages `/concept/graph-basics|bfs|dfs` +
+  Explore gains 3 Graphs cards (18 total). All 13 prior playgrounds untouched.
+- Prior phase: **Phase 7 — Interactive Trees & Tree Traversal Playgrounds** (Binary Tree,
+  Binary Search Tree, Tree Traversals). New `TREES` nav group: Binary Tree (level-order build +
+  Pre/In/Post/Level traversals on the Phase 2.3 engine), BST (real insert/search/delete with
+  compare-path, 3 delete cases incl. inorder-successor replacement, duplicate rejection), Tree
+  Traversals (one shared tree, all four orders compared). Shared infra: `src/dataStructures/
+  {binaryTree,bst}.js` (real node relationships, edge-based... no — LEVELS height convention:
+  empty=0, single node=1), `src/algorithms/trees/{traversals,bstSteps}.js` (step generators),
+  `src/components/visualizations/Tree/` (dynamic inorder-x/depth-y layout, SVG edges, ROOT/LEAF/
+  CURRENT tags, result bar, stats), `src/playgrounds/treeShared.js` + `TreePlayground.jsx`
+  renderer (embedded VisualizationEngine + autoPlay + OperationHistory/Undo). Concept pages
+  `/concept/binary-tree|binary-search-tree|tree-traversals` + Explore gains 3 Trees cards
+  (15 total). All 10 prior playgrounds untouched (verified by build + registry checks).
   Phase 2.4.2 built the single Binary Search playground (pure state generator + concept wrapper +
   Validation Engine). Phase 4 generalized that into a reusable pipeline: shared `src/algorithms/`
   step generators → standardized snapshot format → one shared `ArrayVisualization` → the existing
